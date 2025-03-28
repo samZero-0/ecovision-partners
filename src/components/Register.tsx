@@ -1,251 +1,275 @@
 'use client';
-import { updateProfile } from "firebase/auth";
-import { useContext, useEffect, useState } from "react";
-import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
-// import { Link, useNavigate, useLocation } from "react-router-dom";
-import { AuthContext } from "../../providers/AuthProvider";
+import { useContext, useState } from "react";
+import { FaEye, FaEyeSlash, FaGoogle, FaUser, FaEnvelope, FaLock, FaImage } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert2";
-// import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import axios from "axios";
 import Link from "next/link";
-// import { Helmet } from "react-helmet";
+import { useRouter } from "next/navigation";
+import { AuthContext } from "@/providers/AuthProvider";
+import { updateProfile } from "firebase/auth";
 
 const Register = () => {
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   const { createAccount, setUser, googleSignin } = useContext(AuthContext);
-  const [error, setError] = useState(null);
-//   const navigate = useNavigate();
-//   const location = useLocation();
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    email: '',
+    name: '',
+    photo: '',
+    password: '',
+    role: 'user'
+  });
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [selectedRole, setSelectedRole] = useState("user"); // Default role
+  const [passwordStrength, setPasswordStrength] = useState(0);
+  const [errors, setErrors] = useState({
+    email: '',
+    password: '',
+    name: ''
+  });
 
-  const handleGoogleLogin = () => {
-    googleSignin()
-      .then((res) => {
-        // Create user data with default role for Google sign-in
-        const userData = {
-          displayName: res.user.displayName,
-          photoURL: res.user.photoURL,
-          email: res.user.email,
-          role: "user", // Default role for Google sign-in
-        };
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = { email: '', password: '', name: '' };
 
-        // Save user data to database
-        axios.post("https://ecovision-backend-five.vercel.app/users", userData)
-          .then(() => {
-            toast.success("Register Successful");
-            setTimeout(() => {
-            //   navigate(location?.state?.from || "/");
-            }, 800);
-          })
-          .catch((err) => {
-            toast.error("Failed to save user data");
-          });
-      })
-      .catch((err) => {
-        toast.error("Google login failed");
-      });
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+      valid = false;
+    }
+
+    // Name validation
+    if (formData.name.length < 2) {
+      newErrors.name = 'Name must be at least 2 characters long';
+      valid = false;
+    }
+
+    // Password validation
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      newErrors.password = 'Password must be 8+ chars, include uppercase, lowercase, number, and special character';
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
   };
 
-  const handleFormSubmit = (e) => {
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+
+    // Password strength calculation
+    if (name === 'password') {
+      let strength = 0;
+      if (value.length >= 8) strength++;
+      if (/[A-Z]/.test(value)) strength++;
+      if (/[a-z]/.test(value)) strength++;
+      if (/\d/.test(value)) strength++;
+      if (/[@$!%*?&]/.test(value)) strength++;
+      setPasswordStrength(strength);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const email = e.target.email.value;
-    const regex = /^(?=.*[A-Z])(?=.*[a-z]).{6,}$/;
-    const password = e.target.password.value;
-    const name = e.target.name.value;
-    const photo = e.target.photo.value;
+  
+    if (!validateForm()) return;
+  
+    const { email, password, name, photo, role } = formData;
+  
+    try {
+      const result = await createAccount(email, password);
+      const currentUser = result.user;
+      setUser(currentUser);
+  
+      await updateProfile(currentUser, { displayName: name, photoURL: photo });
+  
+      const userData = {
+        displayName: name,
+        photoURL: photo,
+        email,
+        role,
+      };
+  
+      await axios.post("https://ecovision-backend-five.vercel.app/users", userData);
+  
+      Swal.fire({
+        title: "Registration Successful!",
+        text: "You have been registered successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      }).then(() => {
+        router.push("/");
+      });
+    } catch (error) {
+      toast.error(`Registration Failed: ${error.message}`);
+    }
+  };
+  
 
-    if (regex.test(password)) {
-      createAccount(email, password)
-        .then((result) => {
-          const currentUser = result.user;
-          setUser(currentUser);
 
-          updateProfile(currentUser, { displayName: name, photoURL: photo })
-            .then(() => {
-              const userData = {
-                displayName: name,
-                photoURL: photo,
-                email: email,
-                role: selectedRole, // Use the selected role
-              };
-
-              axios
-                .post("https://ecovision-backend-five.vercel.app/users", userData)
-                .then((response) => {
-                  Swal.fire({
-                    title: "Registration Successful!",
-                    text: "You have been registered successfully.",
-                    icon: "success",
-                    confirmButtonText: "OK",
-                  }).then(() => {
-                    // navigate(location?.state?.from || "/");
-                  });
-                })
-                .catch((err) => {
-                  toast.error(`Failed to save user data: ${err.message}`);
-                });
-            })
-            .catch((err) => {
-              toast.error(`Profile update failed: ${err.message}`);
-            });
-        })
-        .catch((error) => {
-          toast.error(`Registration Failed: ${error.message}`);
-        });
-    } else {
-      setError(
-        "Password must have an uppercase letter, lowercase letter, and a length of at least 6 characters."
-      );
+  const handleGoogleLogin = async () => {
+    try {
+      // Implement Google Sign-In logic
+      toast.success("Google Sign-In functionality to be implemented");
+    } catch (error) {
+      toast.error("Google login failed");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12">
-      {/* <Helmet>
-        <title>Register</title>
-      </Helmet> */}
+    <div className="min-h-screen flex items-center justify-center  p-4">
       <ToastContainer />
+      
+      <div className="w-2xl bg-white shadow-lg rounded-xl p-8">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+          Create Your Account
+        </h2>
 
-      <div className="bg-white dark:bg-transparent rounded-lg overflow-hidden md:flex w-4/5 lg:w-3/5">
-        <div className="hidden md:flex md:w-1/2 items-center justify-center p-6">
-          {/* <DotLottieReact
-            src="https://lottie.host/d036fd77-2e19-41c9-9d9a-ea7b23dfd792/8GWv13DLTr.lottie"
-            loop
-            autoplay
-            speed={1}
-            style={{ width: "350px", height: "350px" }}
-          /> */}
-        </div>
-
-        <div className="w-full md:w-1/2 md:p-8">
-          <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-6">
-            Create an Account
-          </h1>
-
-          <form onSubmit={handleFormSubmit} className="space-y-6 dark:border dark:rounded-xl p-6">
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-white">
-                Email
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Enter your email"
-                  required
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Email Input */}
+          <div>
+            <div className="flex items-center space-x-2 mb-1">
+              <FaEnvelope className="text-gray-400" />
+              <label className="text-sm font-medium text-gray-700">Email</label>
             </div>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              placeholder="Enter your email"
+              className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+          </div>
 
-            {/* Username */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-white">
-                Username
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Enter your username"
-                  required
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
+          {/* Username Input */}
+          <div>
+            <div className="flex items-center space-x-2 mb-1">
+              <FaUser className="text-gray-400" />
+              <label className="text-sm font-medium text-gray-700">Username</label>
             </div>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="Enter your username"
+              className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+          </div>
 
-            {/* Role Selection Dropdown */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-white">
-                Role
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <select
-                  value={selectedRole}
-                  onChange={(e) => setSelectedRole(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="user">User</option>
-                  <option value="seller">Seller</option>
-                </select>
-              </div>
+          {/* Role Selection */}
+          <div>
+            <div className="flex items-center space-x-2 mb-1">
+              <label className="text-sm font-medium text-gray-700">Select Role</label>
             </div>
-
-            {/* Photo URL */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-white">
-                Photo URL
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <input
-                  type="url"
-                  name="photo"
-                  placeholder="Enter your photo URL"
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-white">
-                Password
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <input
-                  type={passwordVisible ? "text" : "password"}
-                  name="password"
-                  placeholder="Enter your password"
-                  required
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => setPasswordVisible(!passwordVisible)}
-                  className="absolute right-3 top-3 text-gray-600"
-                >
-                  {passwordVisible ? <FaEyeSlash /> : <FaEye />}
-                </button>
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              className="w-full bg-blue-500 text-white text-lg font-bold py-3 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            <select
+              name="role"
+              value={formData.role}
+              onChange={handleInputChange}
+              className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
             >
-              Register
-            </button>
+              <option value="user">User</option>
+              <option value="seller">Seller</option>
+            </select>
+          </div>
 
-            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+          {/* Photo URL Input */}
+          <div>
+            <div className="flex items-center space-x-2 mb-1">
+              <FaImage className="text-gray-400" />
+              <label className="text-sm font-medium text-gray-700">Profile Picture URL</label>
+            </div>
+            <input
+              type="url"
+              name="photo"
+              value={formData.photo}
+              onChange={handleInputChange}
+              placeholder="Optional profile picture URL"
+              className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-            {/* Google Sign-In */}
-            <div className="mt-4 text-center">
+          {/* Password Input */}
+          <div>
+            <div className="flex items-center space-x-2 mb-1">
+              <FaLock className="text-gray-400" />
+              <label className="text-sm font-medium text-gray-700">Password</label>
+            </div>
+            <div className="relative">
+              <input
+                type={passwordVisible ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="Enter your password"
+                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+              />
               <button
                 type="button"
-                onClick={handleGoogleLogin}
-                className="flex items-center justify-center w-full text-black dark:text-white border rounded-xl py-2 focus:outline-none"
+                onClick={() => setPasswordVisible(!passwordVisible)}
+                className="absolute right-3 top-3 text-gray-600"
               >
-                <FaGoogle className="mr-2" /> Login with Google
+                {passwordVisible ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
+            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+            
+            {/* Password Strength Indicator */}
+            <div className="mt-2 h-1 w-full bg-gray-200 rounded">
+              <div 
+                className={`h-1 rounded transition-all duration-500 ${
+                  passwordStrength === 0 ? 'bg-red-500 w-[0%]' :
+                  passwordStrength === 1 ? 'bg-red-500 w-[20%]' :
+                  passwordStrength === 2 ? 'bg-yellow-500 w-[40%]' :
+                  passwordStrength === 3 ? 'bg-yellow-500 w-[60%]' :
+                  passwordStrength === 4 ? 'bg-green-500 w-[80%]' :
+                  'bg-green-500 w-full'
+                }`}
+              ></div>
+            </div>
+          </div>
 
-            {/* Already Registered */}
-            <p className="text-center text-sm text-gray-500 mt-4">
-              Already have an account?{" "}
-              <Link href="/login" className="text-blue-500 hover:underline">
-                Log in
-              </Link>
-            </p>
-          </form>
-        </div>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white py-3 rounded-md hover:bg-blue-600 transition-colors"
+          >
+            Create Account
+          </button>
+
+          {/* Google Sign-In */}
+          {/* <div className="text-center">
+            <div className="flex items-center justify-center my-4">
+              <div className="border-t border-gray-300 flex-grow mr-3"></div>
+              <span className="text-gray-500">or</span>
+              <div className="border-t border-gray-300 flex-grow ml-3"></div>
+            </div>
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              className="w-full flex items-center justify-center border border-gray-300 py-3 rounded-md hover:bg-gray-100 transition-colors"
+            >
+              <FaGoogle className="mr-2" /> Continue with Google
+            </button>
+          </div> */}
+
+          {/* Login Link */}
+          <p className="text-center text-sm text-gray-600 mt-4">
+            Already have an account?{" "}
+            <Link href="/login" className="text-blue-500 hover:underline">
+              Log in
+            </Link>
+          </p>
+        </form>
       </div>
     </div>
   );

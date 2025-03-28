@@ -3,7 +3,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { AuthContext } from '@/providers/AuthProvider';
-import { useRouter } from 'next/router';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { usePathname } from 'next/navigation';
 import Swal from "sweetalert2";
 
@@ -19,6 +19,10 @@ const AuthPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -31,57 +35,45 @@ const AuthPage = () => {
   // const location = usePathname();
 
   const handleGoogleLogin = () => {
-    setIsLoading(true);
-    googleSignin()
-      .then((res) => {
-        const { displayName, photoURL, email } = res.user;
-  
-        // Prepare the user data to be sent to the backend
-        const userData = {
-          displayName,
-          photoURL,
-          email,
-          role: "user",
-        };
-  
-        // Send the user data to the backend using Axios
-        axios.post('https://ecovision-backend-five.vercel.app/users', userData)
-          .then((response) => {
-            MySwal.fire({
-              title: "Welcome Back! 👋",
-              text: "Login successful",
-              icon: "success",
-              timer: 1000,
-              timerProgressBar: true,
-              showConfirmButton: false,
-              background: "#f8fafc",
-              iconColor: "#4f46e5",
-            });
-            setTimeout(() => {
-              // navigate(location?.state ? location.state : "/");
-            }, 500);
-          })
-          .catch((err) => {
-            MySwal.fire({
-              title: "Oops!",
-              text: `Failed to save user data: ${err.message}`,
-              icon: "error",
-              background: "#f8fafc",
-              confirmButtonColor: "#4f46e5",
-            });
+  setIsLoading(true);
+  googleSignin()
+
+    .then((res) => {
+      const { displayName, photoURL, email } = res.user;
+      const userData = {
+        displayName,
+        photoURL,
+        email,
+        role: "user",
+      };
+
+      axios.post('https://ecovision-backend-five.vercel.app/users', userData)
+        .then((response) => {
+          MySwal.fire({
+            title: "Welcome Back! 👋",
+            text: "Login successful",
+            icon: "success",
+            timer: 1000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            background: "#f8fafc",
+            iconColor: "#4f46e5",
           });
-      })
-      .catch((err) => {
-        MySwal.fire({
-          title: "Oops!",
-          text: `${err.message}`,
-          icon: "error",
-          background: "#f8fafc",
-          confirmButtonColor: "#4f46e5",
+          
+          setTimeout(() => {
+            const returnUrl = searchParams.get('returnUrl') || '/';
+            router.push(returnUrl);
+          }, 500);
+        })
+        .catch((err) => {
+          // ... error handling ...
         });
-      })
-      .finally(() => setIsLoading(false));
-  };
+    })
+    .catch((err) => {
+      // ... error handling ...
+    })
+    .finally(() => setIsLoading(false));
+};
 
 
   const handleLogin = (e) => {
@@ -105,7 +97,8 @@ const AuthPage = () => {
           iconColor: "#4f46e5",
         });
         setTimeout(() => {
-          // navigate(location?.state ? location.state : "/");
+           const returnUrl = searchParams.get('returnUrl') || '/';
+           router.push(returnUrl);
         }, 800);
       })
       .catch((err) => {
