@@ -177,8 +177,8 @@ const Register = () => {
               onChange={handleInputChange}
               className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
             >
-              <option value="user">User</option>
-              <option value="seller">Seller</option>
+              <option value="donor">Donor</option>
+              <option value="volunteer">Volunteer</option>
             </select>
           </div>
 

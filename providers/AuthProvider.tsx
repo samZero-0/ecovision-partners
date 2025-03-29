@@ -27,8 +27,8 @@ const AuthProvider = ({ children }) => {
     const [amount, setAmount] = useState(0);
     const [invoice, setInvoice] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
-    const [isSeller, setIsSeller] = useState(false);
-    const [isUser, setIsUser] = useState(false);
+    const [isVolunteer, setIsVolunter] = useState(false);
+    const [isDonor, setIsDonor] = useState(false);
     const [allUsers, setAllUsers] = useState([]);
 
     const toggleDarkMode = () => {
@@ -111,7 +111,7 @@ const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         axios
-            .get("https://assignment-12-blue.vercel.app/users")
+            .get("https://ecovision-backend-five.vercel.app/users")
             .then((res) => {
                 setAllUsers(res.data);
 
@@ -121,16 +121,16 @@ const AuthProvider = ({ children }) => {
                 if (loggedInUser) {
                     if (loggedInUser.role === "admin") {
                         setIsAdmin(true);
-                        setIsSeller(false);
-                        setIsUser(false);
-                    } else if (loggedInUser.role === "seller") {
-                        setIsSeller(true);
+                        setIsVolunter(false);
+                        setIsDonor(false);
+                    } else if (loggedInUser.role === "volunteer") {
+                        setIsVolunter(true);
                         setIsAdmin(false);
-                        setIsUser(false);
-                    } else if (loggedInUser.role === "user") {
-                        setIsUser(true);
+                        setIsDonor(false);
+                    } else if (loggedInUser.role === "donor") {
+                        setIsDonor(true);
                         setIsAdmin(false);
-                        setIsSeller(false);
+                        setIsVolunter(false);
                     }
                 }
             })
@@ -157,8 +157,8 @@ const AuthProvider = ({ children }) => {
         invoice,
         setInvoice,
         isAdmin,
-        isSeller,
-        isUser,
+        isDonor,
+        isVolunteer,
     };
 
     return <AuthContext.Provider value={userInfo}>{children}</AuthContext.Provider>;

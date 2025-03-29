@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "../../app/globals.css";
 import NavBar from "@/src/components/NavBar";
 import Footer from "@/src/components/Footer";
-import AuthProvider from "../providers/AuthProvider"; // Ensure correct import path
+import AuthProvider from "../../providers/AuthProvider"; // Ensure correct import path
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +35,7 @@ export default function RootLayout({
           </nav>
 
           <div className="min-h-screen">{children}</div>
-
+    
           <footer>
             <Footer />
           </footer>

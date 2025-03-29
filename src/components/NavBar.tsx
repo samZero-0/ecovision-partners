@@ -6,14 +6,14 @@ import { AiOutlineLogin } from "react-icons/ai";
 import { AuthContext } from "../../providers/AuthProvider";
 // import { DarkModeSwitch } from "react-toggle-dark-mode";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
-import { FaCartPlus } from "react-icons/fa";
+// import { FaCartPlus } from "react-icons/fa";
 import Link from "next/link";
-import Image from "next/image";
+// import Image from "next/image";
 
 const Navbar = () => {
   const [hamburger, setHamburger] = useState(false);
   const { user, logOut } = useContext(AuthContext);
-  const { isDarkMode, toggleDarkMode, isAdmin, isUser, isSeller, cart } = useContext(AuthContext);
+  const { isDarkMode, toggleDarkMode, isAdmin, isDonor, isVolunteer } = useContext(AuthContext);
   const [showLoginButton, setShowLoginButton] = useState(false);
 
   useEffect(() => {
@@ -28,9 +28,9 @@ const Navbar = () => {
   const getDashboardPath = () => {
     if (isAdmin) {
       return "/adminDashboard";
-    } else if (isSeller) {
+    } else if (isDonor) {
       return "/sellerDashboard";
-    } else if (isUser) {
+    } else if (isVolunteer) {
       return "/userDashboard";
     } else {
       return "/userDashboard"; 
@@ -38,6 +38,7 @@ const Navbar = () => {
   };
 
   console.log(user);
+  console.log(isAdmin, isDonor, isVolunteer);
   
 
   return (
@@ -53,18 +54,18 @@ const Navbar = () => {
               {hamburger ? <AiOutlineClose size={24} /> : <AiOutlineMenu size={24} />}
             </button>
             <Link href="/" className="btn btn-ghost text-xl hidden lg:block">
-              {/* <Image src="/logo.png" alt="Logo" className="md:block w-[200px]" /> */}
+              <h3>Ecovision Partners</h3>
             </Link>
           </div>
 
           {/* Navbar Center */}
           <div className="navbar-center hidden lg:flex">
-            <ul className="menu menu-horizontal px-1 text-lg ">
+            <ul className="menu menu-horizontal px-1 text-base ">
               <li>
                 <Link href="/">Home</Link>
               </li>
               <li>
-                <Link href="/shop">Shop</Link>
+                <Link href="/">About</Link>
               </li>
             </ul>
           </div>
