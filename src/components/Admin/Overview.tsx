@@ -1,8 +1,9 @@
 "use client"
-import React from 'react';
+import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, DollarSign, Calendar, TrendingUp } from 'lucide-react';
+import axios from 'axios';
 
 const data = [
   { name: 'Jan', users: 400, donations: 2400, events: 8 },
@@ -14,6 +15,16 @@ const data = [
 ];
 
 const Overview = () => {
+
+  const [users,setUsers] = useState([]);
+  const [events,setEvents] = useState([]);
+
+  axios.get('https://ecovision-backend-five.vercel.app/users')
+  .then(res=> setUsers(res.data))
+
+  axios.get('https://ecovision-backend-five.vercel.app/events')
+  .then(res=> setEvents(res.data))
+
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">Dashboard Overview</h1>
@@ -26,7 +37,7 @@ const Overview = () => {
             </div>
             <div>
               <p className="text-sm text-gray-500">Total Users</p>
-              <h3 className="text-2xl font-bold">2,543</h3>
+              <h3 className="text-2xl font-bold">{users.length}</h3>
             </div>
           </CardContent>
         </Card>
@@ -49,8 +60,8 @@ const Overview = () => {
               <Calendar className="h-6 w-6 text-purple-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Active Events</p>
-              <h3 className="text-2xl font-bold">18</h3>
+              <p className="text-sm text-gray-500">Total Events</p>
+              <h3 className="text-2xl font-bold">{events.length}</h3>
             </div>
           </CardContent>
         </Card>

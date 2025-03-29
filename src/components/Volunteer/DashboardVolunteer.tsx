@@ -1,11 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import AvailableEvents from './AvailableEvents';
 import MyAssignedEvents from './MyAssignedEvents';
 import ProgressReports from './ProgressReport';
+import { AuthContext } from '@/providers/AuthProvider';
 
 const Dashboard: React.FC = () => {
+
+  const {user} =useContext(AuthContext)
+
   const [activeTab, setActiveTab] = useState<'available' | 'assigned' | 'progress'>('available');
 
   return (
@@ -14,10 +18,10 @@ const Dashboard: React.FC = () => {
         <div className="md:w-full py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center ">
           <h1 className="text-3xl font-bold text-gray-900">Volunteer Dashboard</h1>
           <div className="flex items-center space-x-4 ">
-            <span className="text-sm text-gray-600">Welcome, Alex</span>
+            <span className='font-semibold text-lg px-4'>{user?.displayName}</span>
             <img
               className="h-10 w-10 rounded-full bg-gray-300"
-              src="/api/placeholder/40/40"
+              src={user?.photoURL}
               alt="User profile"
             />
           </div>

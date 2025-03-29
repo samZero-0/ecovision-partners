@@ -14,6 +14,8 @@ interface Event {
   location: string;
   attendees: number;
   status: string;
+  description: string;
+  image: string; // Changed from imageFile to imageUrl
 }
 
 const EventManagement = () => {
@@ -71,7 +73,9 @@ const EventManagement = () => {
       time: '',
       location: '',
       attendees: 0,
-      status: 'Upcoming'
+      status: 'Upcoming',
+      description: '',
+      image: '' // Initialize with empty string
     });
     setIsModalOpen(true);
   };
@@ -86,13 +90,22 @@ const EventManagement = () => {
     if (!currentEvent) return;
   
     try {
+      const eventData = {
+        title: currentEvent.title,
+        date: currentEvent.date,
+        time: currentEvent.time,
+        location: currentEvent.location,
+        attendees: currentEvent.attendees,
+        status: currentEvent.status,
+        description: currentEvent.description,
+        image: currentEvent.image // Include image URL
+      };
+  
       if (currentEvent._id) {
-        // Update existing event - only send updatable fields
-        const { _id, createdAt, updatedAt, ...updateData } = currentEvent;
-        
+        // Update existing event
         const response = await axios.patch(
           `https://ecovision-backend-five.vercel.app/events/${currentEvent._id}`,
-          updateData,
+          eventData,
           {
             headers: {
               'Content-Type': 'application/json',
@@ -100,17 +113,14 @@ const EventManagement = () => {
           }
         );
   
-        // Use the updated event from the response
         setEvents(events.map(event => 
           event._id === currentEvent._id ? response.data.event : event
         ));
-        
-        Swal.fire('Success', 'Event updated successfully', 'success');
       } else {
         // Create new event
         const response = await axios.post(
           'https://ecovision-backend-five.vercel.app/events', 
-          currentEvent,
+          eventData,
           {
             headers: {
               'Content-Type': 'application/json',
@@ -119,10 +129,11 @@ const EventManagement = () => {
         );
         
         setEvents([...events, response.data.event]);
-        Swal.fire('Success', 'Event created successfully', 'success');
       }
       
+      Swal.fire('Success', 'Event saved successfully', 'success');
       setIsModalOpen(false);
+      setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
       console.error('Error saving event:', error);
       
@@ -130,13 +141,12 @@ const EventManagement = () => {
       if (axios.isAxiosError(error)) {
         errorMessage = error.response?.data?.message || error.message;
       }
-      setIsModalOpen(false);
-      Swal.fire('Success', 'Data added succesfully', 'success');
-      setTimeout(() => window.location.reload(), 1000);
+      
+      Swal.fire('Error', errorMessage, 'error');
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     if (!currentEvent) return;
     
     const { name, value } = e.target;
@@ -234,6 +244,44 @@ const EventManagement = () => {
                     min="0"
                     required
                   />
+                </div>
+
+                {/* Description (textarea) */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <textarea
+                    name="description"
+                    value={currentEvent?.description || ''}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    rows={4}
+                    required
+                  />
+                </div>
+
+                {/* Image URL Input */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                  <input
+                    type="url"
+                    name="image"
+                    value={currentEvent?.image || ''}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    placeholder="https://example.com/image.jpg"
+                  />
+                  {currentEvent?.image && (
+                    <div className="mt-2">
+                      <img 
+                        src={currentEvent.image} 
+                        alt="Event preview" 
+                        className="h-32 object-cover rounded-md"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
                 
                 <div>
