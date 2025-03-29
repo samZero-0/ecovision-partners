@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { DollarSign, HeartHandshake, Target, ArrowUp } from 'lucide-react';
+import { AuthContext } from '@/providers/AuthProvider';
 interface Donation {
   id: string;
   organization: string;
@@ -16,6 +17,11 @@ interface Donation {
 }
 
 const MyDonations: React.FC = () => {
+
+const {user} = useContext(AuthContext)
+
+
+
   const [donations, setDonations] = useState<Donation[]>([
     {
       id: '1',
@@ -71,7 +77,11 @@ const MyDonations: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
+        <div className='flex flex-col gap-3'>
         <h1 className="text-2xl font-bold">My Donations</h1>
+        <h3>Welcom back, {user?.displayName}</h3>
+        </div>
+        
         <div className="flex gap-2">
           <button 
             onClick={() => setActiveFilter('all')}

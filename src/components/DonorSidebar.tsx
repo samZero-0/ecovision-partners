@@ -1,18 +1,38 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "./ui/sidebar";
 import {
   IconArrowLeft,
   IconBrandTabler,
   IconSettings,
   IconUserBolt,
+  IconMoneybagMove,
+  IconTransactionDollar
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { motion } from "motion/react";
 // import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { on } from "events";
+import { AuthContext } from "@/providers/AuthProvider";
+import { useRouter } from "next/navigation";
  
 export function SidebarDemoDonor() {
+
+
+  const {logOut} = useContext(AuthContext);
+  const router = useRouter();
+
+  const handleLogOut = async () => {
+   
+        await logOut();
+        router.push("/");
+    
+  };
+
+
+
+
   const links = [
     {
       label: "Dashbaord",
@@ -26,14 +46,14 @@ export function SidebarDemoDonor() {
         label: "Dontate Now",
         href: "/donor/donate-now",
         icon: (
-          <IconSettings className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+          <IconMoneybagMove className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
         ),
       },
       {
         label: "Transaction History",
         href: "/donor/transaction-history",
         icon: (
-          <IconSettings className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+          <IconTransactionDollar className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
         ),
       },
     {
@@ -49,6 +69,7 @@ export function SidebarDemoDonor() {
       icon: (
         <IconArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
+      onClick: handleLogOut,
     },
   ];
   const [open, setOpen] = useState(false);
@@ -67,7 +88,10 @@ export function SidebarDemoDonor() {
             </>
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
-                <SidebarLink key={idx} link={link} />
+                <SidebarLink key={idx} 
+                link={link} onClick={link.onClick ? link.onClick : undefined}
+              
+                 />
               ))}
             </div>
           </div>

@@ -27,13 +27,13 @@ const Navbar = () => {
   // Determine the dashboard path based on the user's role
   const getDashboardPath = () => {
     if (isAdmin) {
-      return "/adminDashboard";
+      return "/admin";
     } else if (isDonor) {
-      return "/sellerDashboard";
+      return "/donor";
     } else if (isVolunteer) {
-      return "/userDashboard";
+      return "/volunteer";
     } else {
-      return "/userDashboard"; 
+      return "/donor"; 
     }
   };
 
@@ -88,9 +88,7 @@ const Navbar = () => {
                   tabIndex={0}
                   className="menu dropdown-content bg-base-200 rounded-box z-[50] mt-2 w-52 p-2 shadow"
                 >
-                  <li>
-                    <Link href="/myOrders">Update profile</Link>
-                  </li>
+                  
                   <li>
                     {/* Dynamic Dashboard Link */}
                     <Link href={getDashboardPath()}>Dashboard</Link>

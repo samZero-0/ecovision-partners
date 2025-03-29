@@ -1,18 +1,35 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "./ui/sidebar";
 import {
   IconArrowLeft,
   IconBrandTabler,
   IconSettings,
   IconUserBolt,
+  IconCalendarEvent,
+  IconFileDollar
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { motion } from "motion/react";
 // import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { AuthContext } from "@/providers/AuthProvider";
  
 export function SidebarDemo() {
+
+  const {logOut} = useContext(AuthContext);
+    const router = useRouter();
+  
+    const handleLogOut = async () => {
+     
+          await logOut();
+          router.push("/");
+      
+    };
+  
+
+
   const links = [
     {
       label: "Dashbaord",
@@ -32,14 +49,14 @@ export function SidebarDemo() {
       label: "Events",
       href: "/admin/eventManage",
       icon: (
-        <IconSettings className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+        <IconCalendarEvent className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
       label: "Donations",
       href: "/admin/donations",
       icon: (
-        <IconSettings className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+        <IconFileDollar className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
@@ -55,6 +72,7 @@ export function SidebarDemo() {
       icon: (
         <IconArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
+      onClick: handleLogOut,
     },
   ];
   const [open, setOpen] = useState(false);
@@ -73,7 +91,7 @@ export function SidebarDemo() {
             </>
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
-                <SidebarLink key={idx} link={link} />
+                <SidebarLink key={idx} link={link} onClick={link.onClick ? link.onClick : undefined} />
               ))}
             </div>
           </div>
