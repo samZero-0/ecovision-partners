@@ -12,34 +12,13 @@ import { motion } from "motion/react";
 // import Image from "next/image";
 import { cn } from "@/lib/utils";
  
-export function SidebarDemo() {
+export function SidebarDemoVolunteer() {
   const links = [
     {
       label: "Dashbaord",
-      href: "/admin",
+      href: "/volunteer",
       icon: (
         <IconBrandTabler className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Manage Users",
-      href: "/admin/manageUsers",
-      icon: (
-        <IconUserBolt className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Events",
-      href: "/admin/eventManage",
-      icon: (
-        <IconSettings className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Donations",
-      href: "/admin/donations",
-      icon: (
-        <IconSettings className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {

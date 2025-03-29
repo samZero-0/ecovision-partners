@@ -1,11 +1,12 @@
 
-import Overview from "@/src/components/Admin/Overview";
 // import {  SidebarDemo } from "@/src/components/AdminSidebar";
+
+import Dashboard from "@/src/components/Volunteer/DashboardVolunteer";
 
 const page = () => {
     return (
         <div className="">
-           <Overview></Overview>
+           <Dashboard></Dashboard>
           
         </div>
     );
