@@ -1,3 +1,4 @@
+
 import AuthProvider from "@/providers/AuthProvider";
 // import Navbar from "@/src/components/NavBar";
 import { Geist, Geist_Mono } from "next/font/google";
