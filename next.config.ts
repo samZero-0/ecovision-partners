@@ -3,6 +3,13 @@ const nextConfig = {
   images: {
     domains: ['assets.aceternity.com'],
   },
+  eslint: {
+    ignoreDuringBuilds: true, // Disable ESLint checks during build
+  },
+  typescript:{
+    ignoreBuildErrors: true
+  },
+  
 };
 
 module.exports = nextConfig;

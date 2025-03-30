@@ -6,10 +6,10 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 
 const ManageUsers = () => {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [formData, setFormData] = useState({
     displayName: '',
     email: '',
@@ -17,6 +17,15 @@ const ManageUsers = () => {
     role: 'user'
   });
   const [searchTerm, setSearchTerm] = useState('');
+
+  interface User {
+    _id: string;
+    displayName?: string;
+    email?: string;
+    photoURL?: string;
+    role: string;
+    // Add any other properties you expect on the user objects
+  }
   
   useEffect(() => {
     fetchUsers();
@@ -33,7 +42,7 @@ const ManageUsers = () => {
     user?.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
-  const handleDeleteUser = (id) => {
+  const handleDeleteUser = (id: string) => {
     Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -78,7 +87,7 @@ const ManageUsers = () => {
     setIsModalOpen(true);
   };
 
-  const handleEditUser = (user) => {
+  const handleEditUser = (user: User) => {
     setSelectedUser(user);
     setFormData({
       displayName: user.displayName || '',

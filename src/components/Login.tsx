@@ -1,19 +1,18 @@
 'use client';
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { Suspense, useContext, useEffect, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { AuthContext } from '@/providers/AuthProvider';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { usePathname } from 'next/navigation';
 import Swal from "sweetalert2";
-
 import withReactContent from "sweetalert2-react-content";
 import axios from 'axios';
 import Link from 'next/link';
 
 const MySwal = withReactContent(Swal);
 
-const AuthPage = () => {
+// Main component that uses useSearchParams()
+const AuthContent = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,7 +20,6 @@ const AuthPage = () => {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -31,50 +29,57 @@ const AuthPage = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // const navigate = useRouter();
-  // const location = usePathname();
-
   const handleGoogleLogin = () => {
-  setIsLoading(true);
-  googleSignin()
+    setIsLoading(true);
+    googleSignin()
+      .then((res) => {
+        const { displayName, photoURL, email } = res.user;
+        const userData = {
+          displayName,
+          photoURL,
+          email,
+          role: "user",
+        };
 
-    .then((res) => {
-      const { displayName, photoURL, email } = res.user;
-      const userData = {
-        displayName,
-        photoURL,
-        email,
-        role: "user",
-      };
-
-      axios.post('https://ecovision-backend-five.vercel.app/users', userData)
-        .then((response) => {
-          MySwal.fire({
-            title: "Welcome Back! 👋",
-            text: "Login successful",
-            icon: "success",
-            timer: 1000,
-            timerProgressBar: true,
-            showConfirmButton: false,
-            background: "#f8fafc",
-            iconColor: "#4f46e5",
+        axios.post('https://ecovision-backend-five.vercel.app/users', userData)
+          .then((response) => {
+            MySwal.fire({
+              title: "Welcome Back! 👋",
+              text: "Login successful",
+              icon: "success",
+              timer: 1000,
+              timerProgressBar: true,
+              showConfirmButton: false,
+              background: "#f8fafc",
+              iconColor: "#4f46e5",
+            });
+            
+            setTimeout(() => {
+              const returnUrl = searchParams.get('returnUrl') || '/';
+              router.push(returnUrl);
+            }, 500);
+          })
+          .catch((err) => {
+            MySwal.fire({
+              title: "Error!",
+              text: err.message,
+              icon: "error",
+              background: "#f8fafc",
+              confirmButtonColor: "#4f46e5",
+            });
           });
-          
-          setTimeout(() => {
-            const returnUrl = searchParams.get('returnUrl') || '/';
-            router.push(returnUrl);
-          }, 500);
-        })
-        .catch((err) => {
-          // ... error handling ...
+      })
+      .catch((err) => {
+        MySwal.fire({
+          title: "Error!",
+          text: err.message,
+          icon: "error",
+          background: "#f8fafc",
+          confirmButtonColor: "#4f46e5",
         });
-    })
-    .catch((err) => {
-      // ... error handling ...
-    })
-    .finally(() => setIsLoading(false));
-};
-
+      })
+      .finally(() => setIsLoading(false));
+  };
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -97,8 +102,8 @@ const AuthPage = () => {
           iconColor: "#4f46e5",
         });
         setTimeout(() => {
-           const returnUrl = searchParams.get('returnUrl') || '/';
-           router.push(returnUrl);
+          const returnUrl = searchParams.get('returnUrl') || '/';
+          router.push(returnUrl);
         }, 800);
       })
       .catch((err) => {
@@ -112,7 +117,6 @@ const AuthPage = () => {
       })
       .finally(() => setIsLoading(false));
   };
-
 
   return (
     <div className="min-h-screen flex">
@@ -193,8 +197,9 @@ const AuthPage = () => {
             <button 
               type="submit" 
               className="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition duration-300"
+              disabled={isLoading}
             >
-              {isLogin ? 'Sign in' : 'Sign up'}
+              {isLoading ? 'Processing...' : isLogin ? 'Sign in' : 'Sign up'}
             </button>
 
             <div className="text-center mt-4">
@@ -202,6 +207,7 @@ const AuthPage = () => {
                 type="button"
                 onClick={handleGoogleLogin}
                 className="w-full flex items-center justify-center border rounded-lg py-3 hover:bg-gray-100 transition duration-300"
+                disabled={isLoading}
               >
                 <img 
                   src="https://www.vectorlogo.zone/logos/google/google-icon.svg" 
@@ -285,4 +291,11 @@ const AuthPage = () => {
   );
 };
 
-export default AuthPage;
+// Main export with Suspense boundary
+export default function AuthPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <AuthContent />
+    </Suspense>
+  );
+}
