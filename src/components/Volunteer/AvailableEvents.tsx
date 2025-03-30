@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import axios from 'axios';
 import { Calendar, Clock, MapPin } from 'lucide-react'; // Icons for event details
 // import Image from 'next/image';
 import { AuthContext } from '@/providers/AuthProvider';
+import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
 
 interface Event {
   id: string;
@@ -21,9 +23,62 @@ const AvailableEvents: React.FC = () => {
   const [events, setEvents] = useState([]);
   const {user} = useContext(AuthContext)
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  axios.get('https://ecovision-backend-five.vercel.app/events')
-  .then(res=> setEvents(res.data))
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch both events and volunteer data in parallel
+        const [eventsResponse, volunteersResponse] = await Promise.all([
+          axios.get<Event[]>('https://ecovision-backend-five.vercel.app/events'),
+          axios.get('https://ecovision-backend-five.vercel.app/signed-up-volunteers')
+        ]);
+  
+        console.log("Fetched events:", eventsResponse.data);
+        console.log("Fetched volunteers response:", volunteersResponse.data);
+  
+        // Handle different response formats from backend
+        let volunteersArray: Volunteer[] = [];
+        if (Array.isArray(volunteersResponse.data)) {
+          // Case 1: Backend returns direct array
+          volunteersArray = volunteersResponse.data;
+        } else if (volunteersResponse.data?.volunteers && Array.isArray(volunteersResponse.data.volunteers)) {
+          // Case 2: Backend returns { volunteers: [...] }
+          volunteersArray = volunteersResponse.data.volunteers;
+        } else {
+          console.warn('Unexpected volunteers response format:', volunteersResponse.data);
+        }
+  
+        // Filter volunteers by current user's email and get their event IDs
+        const userRegisteredEventIds = volunteersArray
+          .filter(volunteer => volunteer.volunteerEmail === user?.email)
+          .map(volunteer => volunteer.eventId);
+        
+        // Filter events to exclude those the user has already registered for
+        const availableEvents = eventsResponse.data.filter(event => 
+          !userRegisteredEventIds.includes(event._id)
+        );
+  
+        setEvents(availableEvents);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        toast.error('Failed to load events');
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    if (user?.email) {  // Only fetch if user is logged in
+      fetchData();
+    } else {
+      setEvents([]);  // Clear events if no user is logged in
+    }
+  }, [user]);
+  
+
 
   const filteredEvents = events.filter(event => 
     event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -31,84 +86,99 @@ const AvailableEvents: React.FC = () => {
   );
 
 
-  const handleSignUp = async (eventId: string) => {
-    try {
-      // Get the selected event from the events array
-      const selectedEvent = events.find(event => event._id === eventId);
-      
-      if (!selectedEvent) {
-        console.error('Event not found');
-        return;
-      }
-  
-     
-      const userData = {
-        name: `${user.displayName}`, 
-        email: `${user.email}`, 
-        photoURL:`${user.photoURL}` 
-      };
-  
+const handleSignUp = async (eventId: string) => {
+  // Show confirmation dialog
+  const result = await Swal.fire({
+    title: 'Confirm Registration',
+    text: 'Are you sure you want to register for this event?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, register!'
+  });
+
+  // If user cancels, don't proceed
+  if (!result.isConfirmed) {
+    return;
+  }
+
+  try {
+    const selectedEvent = events.find(event => event._id === eventId);
     
-      const volunteerData = {
-        volunteerName: userData.name,
-        volunteerEmail: userData.email,
-        eventId: selectedEvent._id,
-        eventName: selectedEvent.title,
-        eventImage: selectedEvent.image,
-        volunteerImage: userData.photoURL,
-        progress: 'In Progress', // Default value
-        hoursCompleted: 0 // Default value
-      };
-  
-      // Make the POST request to your backend
-      const response = await axios.post(
-        'https://ecovision-backend-five.vercel.app/signed-up-volunteers',
-        volunteerData,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            
-          }
-        }
-      );
-      
-      if (response.data.success) {
-        // Show success message
-        alert('Successfully registered for the event!');
-        
-        // Optional: Update the UI to reflect the registration
-        // For example, increment attendees count locally
-        // setEvents(events.map(event => 
-        //   event._id === eventId 
-        //     ? { ...event, attendees: event.attendees + 1 } 
-        //     : event
-        // ));
-      } else {
-        console.error('Registration failed:', response.data.message);
-        alert('Registration failed: ' + response.data.message);
-      }
-    } catch (error) {
-      console.error('Error during registration:', error);
-      
-      // Handle different types of errors
-      if (axios.isAxiosError(error)) {
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          alert(`Registration error: ${error.response.data.message || error.message}`);
-        } else if (error.request) {
-          // The request was made but no response was received
-          alert('No response from server. Please check your connection.');
-        } else {
-          // Something happened in setting up the request that triggered an Error
-          alert('Request setup error: ' + error.message);
-        }
-      } else {
-        // Non-Axios error
-        alert('An unexpected error occurred: ' + (error as Error).message);
-      }
+    if (!selectedEvent) {
+      console.error('Event not found');
+      return;
     }
-  };
+
+    const userData = {
+      name: `${user.displayName}`, 
+      email: `${user.email}`, 
+      photoURL: `${user.photoURL}` 
+    };
+
+    const volunteerData = {
+      volunteerName: userData.name,
+      volunteerEmail: userData.email,
+      eventId: selectedEvent._id,
+      eventName: selectedEvent.title,
+      eventImage: selectedEvent.image,
+      volunteerImage: userData.photoURL,
+      progress: 'In Progress',
+      hoursCompleted: 0
+    };
+
+    const response = await axios.post(
+      'https://ecovision-backend-five.vercel.app/signed-up-volunteers',
+      volunteerData,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    );
+    
+    if (response.data.success) {
+      // Remove the event from the UI
+      setEvents(prevEvents => prevEvents.filter(event => event._id !== eventId));
+      
+      // Show success message
+      Swal.fire(
+        'Registered!',
+        'You have successfully registered for the event.',
+        'success'
+      );
+    } else {
+      console.error('Registration failed:', response.data.message);
+      Swal.fire(
+        'Error',
+        `Registration failed: ${response.data.message}`,
+        'error'
+      );
+    }
+  } catch (error) {
+    console.error('Error during registration:', error);
+    
+    let errorMessage = 'An unexpected error occurred';
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        errorMessage = error.response.data.message || error.message;
+      } else if (error.request) {
+        errorMessage = 'No response from server. Please check your connection.';
+      } else {
+        errorMessage = 'Request setup error: ' + error.message;
+      }
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
+    Swal.fire(
+      'Error',
+      errorMessage,
+      'error'
+    );
+  }
+};
   
 
   return (

@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { Bar } from 'recharts';
 
 interface VolunteerStats {
@@ -67,6 +68,24 @@ const ProgressReports: React.FC = () => {
   const nextMilestone = 100;
   const progressPercentage = (stats.totalHours / nextMilestone) * 100;
 
+  const [hours, setHours] = useState([])
+  const [ completed,setCompleted] = useState([])
+   let sum =0;
+
+  useEffect(()=>{
+    axios.get('https://ecovision-backend-five.vercel.app/signed-up-volunteers')
+    .then(res=>setHours(res.data.volunteers.map((item)=>item.hoursCompleted)))
+    
+    axios.get('https://ecovision-backend-five.vercel.app/signed-up-volunteers')
+    .then(res=> setCompleted(res.data.volunteers.filter((item)=>item.progress === 'Completed')))
+
+  },[])
+
+
+  for(let i=0; i<hours.length; i++){
+      sum+=hours[i];
+  }
+  // console.log(sum)
   return (
     <div className="p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Progress Reports</h2>
@@ -96,12 +115,12 @@ const ProgressReports: React.FC = () => {
         <div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="p-4 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-500 font-medium">Total Hours</p>
-              <p className="text-2xl font-bold text-blue-700">{stats.totalHours}</p>
+              <p className="text-sm text-blue-500 font-medium">Total Hour Completed</p>
+              <p className="text-2xl font-bold text-blue-700">{sum}</p>
             </div>
             <div className="p-4 bg-green-50 rounded-lg">
               <p className="text-sm text-green-500 font-medium">Events Completed</p>
-              <p className="text-2xl font-bold text-green-700">{stats.eventsCompleted}</p>
+              <p className="text-2xl font-bold text-green-700">{completed.length}</p>
             </div>
             <div className="p-4 bg-purple-50 rounded-lg">
               <p className="text-sm text-purple-500 font-medium">Upcoming Events</p>
