@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 
 import axios from 'axios';
 import { Calendar, Clock, MapPin } from 'lucide-react'; // Icons for event details
-import Image from 'next/image';
+// import Image from 'next/image';
+import { AuthContext } from '@/providers/AuthProvider';
 
 interface Event {
   id: string;
@@ -18,7 +19,7 @@ interface Event {
 const AvailableEvents: React.FC = () => {
   // Mock data - in a real app, this would come from an API call
   const [events, setEvents] = useState([]);
-
+  const {user} = useContext(AuthContext)
   const [searchTerm, setSearchTerm] = useState('');
 
   axios.get('https://ecovision-backend-five.vercel.app/events')
@@ -29,6 +30,85 @@ const AvailableEvents: React.FC = () => {
     event.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+
+  const handleSignUp = async (eventId: string) => {
+    try {
+      // Get the selected event from the events array
+      const selectedEvent = events.find(event => event._id === eventId);
+      
+      if (!selectedEvent) {
+        console.error('Event not found');
+        return;
+      }
+  
+     
+      const userData = {
+        name: `${user.displayName}`, 
+        email: `${user.email}`, 
+        photoURL:`${user.photoURL}` 
+      };
+  
+    
+      const volunteerData = {
+        volunteerName: userData.name,
+        volunteerEmail: userData.email,
+        eventId: selectedEvent._id,
+        eventName: selectedEvent.title,
+        eventImage: selectedEvent.image,
+        volunteerImage: userData.photoURL,
+        progress: 'In Progress', // Default value
+        hoursCompleted: 0 // Default value
+      };
+  
+      // Make the POST request to your backend
+      const response = await axios.post(
+        'https://ecovision-backend-five.vercel.app/signed-up-volunteers',
+        volunteerData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            
+          }
+        }
+      );
+      
+      if (response.data.success) {
+        // Show success message
+        alert('Successfully registered for the event!');
+        
+        // Optional: Update the UI to reflect the registration
+        // For example, increment attendees count locally
+        // setEvents(events.map(event => 
+        //   event._id === eventId 
+        //     ? { ...event, attendees: event.attendees + 1 } 
+        //     : event
+        // ));
+      } else {
+        console.error('Registration failed:', response.data.message);
+        alert('Registration failed: ' + response.data.message);
+      }
+    } catch (error) {
+      console.error('Error during registration:', error);
+      
+      // Handle different types of errors
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          alert(`Registration error: ${error.response.data.message || error.message}`);
+        } else if (error.request) {
+          // The request was made but no response was received
+          alert('No response from server. Please check your connection.');
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          alert('Request setup error: ' + error.message);
+        }
+      } else {
+        // Non-Axios error
+        alert('An unexpected error occurred: ' + (error as Error).message);
+      }
+    }
+  };
   
 
   return (
@@ -49,7 +129,7 @@ const AvailableEvents: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredEvents.map((event) => (
           <div 
-            key={event.id} 
+            key={event._id} 
             className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow duration-300"
           >
             {/* Image Section */}
@@ -74,7 +154,7 @@ const AvailableEvents: React.FC = () => {
                     ? 'bg-green-100 text-green-800' 
                     : 'bg-red-100 text-red-800'
                 }`}>
-                  {event.attendees > 0 ? `${event.attendees} spots left` : 'Sold out'}
+                  {event.attendees > 0 ? `${event.attendees} Attendees` : 'Sold out'}
                 </span>
               </div>
       
@@ -106,11 +186,11 @@ const AvailableEvents: React.FC = () => {
       
               {/* Action Button */}
               <button
-                onClick={() => handleSignUp(event.id)}
+                onClick={() => handleSignUp(event._id)}
                 disabled={event.attendees === 0}
                 className={`w-full py-2 px-4 rounded-lg text-sm font-semibold transition-colors ${
                   event.attendees > 0 
-                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                    ? 'bg-black text-white hover:bg-blue-700' 
                     : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                 }`}
               >
