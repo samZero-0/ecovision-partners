@@ -1,103 +1,34 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
   ChevronDown, ChevronUp, Download, ArrowDownUp, Search,
   CreditCard, Banknote, Wallet, AlertCircle, CheckCircle2,
   Clock, XCircle, Receipt, RefreshCw, FileText, Filter,
-  Calendar as CalendarIcon, ArrowRight, MoreVertical
+  Calendar as CalendarIcon, ArrowRight, MoreVertical, User
 } from 'lucide-react';
 
-interface Transaction {
-  id: string;
-  date: string;
-  organization: string;
+interface Donation {
+  _id: string;
+  paymentIntentId: string;
   amount: number;
-  type: 'donation' | 'refund';
+  organizationId: string;
+  frequency: string;
+  donorEmail: string;
+  donorName: string;
+  createdAt: string;
   status: 'completed' | 'pending' | 'failed';
-  referenceId: string;
-  paymentMethod: string;
-  campaign?: string;
-  taxReceipt?: boolean;
 }
 
 const TransactionHistory: React.FC = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    {
-      id: '1',
-      date: '2025-03-15T14:30:00',
-      organization: 'Global Relief Foundation',
-      amount: 150,
-      type: 'donation',
-      status: 'completed',
-      referenceId: 'GRF-2553412',
-      paymentMethod: 'Credit Card (****4567)',
-      campaign: 'Emergency Relief Fund',
-      taxReceipt: true
-    },
-    {
-      id: '2',
-      date: '2025-03-01T09:15:00',
-      organization: 'Children Education Fund',
-      amount: 75,
-      type: 'donation',
-      status: 'completed',
-      referenceId: 'CEF-9871254',
-      paymentMethod: 'PayPal',
-      campaign: 'Back to School Initiative',
-      taxReceipt: true
-    },
-    {
-      id: '3',
-      date: '2025-02-20T16:45:00',
-      organization: 'Wildlife Conservation',
-      amount: 100,
-      type: 'donation',
-      status: 'pending',
-      referenceId: 'WC-7563210',
-      paymentMethod: 'Bank Transfer',
-      campaign: 'Endangered Species Protection'
-    },
-    {
-      id: '4',
-      date: '2025-02-10T11:20:00',
-      organization: 'Children Education Fund',
-      amount: 25,
-      type: 'refund',
-      status: 'completed',
-      referenceId: 'CEF-REF-458721',
-      paymentMethod: 'Original Method',
-      campaign: 'Back to School Initiative'
-    },
-    {
-      id: '5',
-      date: '2025-02-05T13:10:00',
-      organization: 'Global Relief Foundation',
-      amount: 200,
-      type: 'donation',
-      status: 'completed',
-      referenceId: 'GRF-3698541',
-      paymentMethod: 'Credit Card (****4567)',
-      campaign: 'Winter Shelter Program',
-      taxReceipt: true
-    },
-    {
-      id: '6',
-      date: '2025-01-20T10:05:00',
-      organization: 'Local Food Bank',
-      amount: 50,
-      type: 'donation',
-      status: 'failed',
-      referenceId: 'LFB-1234567',
-      paymentMethod: 'Credit Card (****7890)',
-      campaign: 'Holiday Meal Drive'
-    }
-  ]);
+  const [donations, setDonations] = useState<Donation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortField, setSortField] = useState<keyof Transaction>('date');
+  const [sortField, setSortField] = useState<keyof Donation>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const [dateRange, setDateRange] = useState<{start: string, end: string}>({
@@ -105,9 +36,28 @@ const TransactionHistory: React.FC = () => {
     end: ''
   });
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
   
-  const handleSort = (field: keyof Transaction) => {
+  useEffect(() => {
+    const fetchDonations = async () => {
+      try {
+        const response = await fetch('https://ecovision-backend-five.vercel.app/donations');
+        const data = await response.json();
+        if (data.success) {
+          setDonations(data.donations);
+        } else {
+          setError('Failed to fetch donations');
+        }
+      } catch (err) {
+        setError('Error fetching donations');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchDonations();
+  }, []);
+  
+  const handleSort = (field: keyof Donation) => {
     if (sortField === field) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
@@ -123,31 +73,31 @@ const TransactionHistory: React.FC = () => {
     }));
   };
   
-  const filteredTransactions = transactions.filter(transaction => {
+  const filteredDonations = donations.filter(donation => {
     const matchesSearch = 
-      transaction.organization.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.referenceId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.campaign?.toLowerCase().includes(searchTerm.toLowerCase());
+      donation.donorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      donation.donorEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      donation.organizationId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      donation.paymentIntentId.toLowerCase().includes(searchTerm.toLowerCase());
     
     let matchesDateRange = true;
     if (dateRange.start && dateRange.end) {
-      const transactionDate = new Date(transaction.date);
+      const donationDate = new Date(donation.createdAt);
       const startDate = new Date(dateRange.start);
       const endDate = new Date(dateRange.end);
-      matchesDateRange = transactionDate >= startDate && transactionDate <= endDate;
+      matchesDateRange = donationDate >= startDate && donationDate <= endDate;
     }
     
-    const matchesStatus = statusFilter === 'all' || transaction.status === statusFilter;
-    const matchesType = typeFilter === 'all' || transaction.type === typeFilter;
+    const matchesStatus = statusFilter === 'all' || donation.status === statusFilter;
     
-    return matchesSearch && matchesDateRange && matchesStatus && matchesType;
+    return matchesSearch && matchesDateRange && matchesStatus;
   });
   
-  const sortedTransactions = [...filteredTransactions].sort((a, b) => {
-    if (sortField === 'date') {
+  const sortedDonations = [...filteredDonations].sort((a, b) => {
+    if (sortField === 'createdAt') {
       return sortDirection === 'asc' 
-        ? new Date(a.date).getTime() - new Date(b.date).getTime()
-        : new Date(b.date).getTime() - new Date(a.date).getTime();
+        ? new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     }
     
     if (sortField === 'amount') {
@@ -172,23 +122,49 @@ const TransactionHistory: React.FC = () => {
     }
   };
   
-  const getPaymentMethodIcon = (method: string) => {
-    if (method.includes('Credit Card')) return <CreditCard className="h-4 w-4 mr-1" />;
-    if (method.includes('PayPal')) return <Wallet className="h-4 w-4 mr-1" />;
-    if (method.includes('Bank')) return <Banknote className="h-4 w-4 mr-1" />;
-    return null;
+  const getOrganizationName = (id: string) => {
+    // You might want to replace this with actual organization names
+    switch(id) {
+      case '1': return 'Global Relief Foundation';
+      case '2': return 'Children Education Fund';
+      case '3': return 'Wildlife Conservation';
+      default: return `Organization ${id}`;
+    }
+  };
+
+  const refreshData = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('https://ecovision-backend-five.vercel.app/donations');
+      const data = await response.json();
+      if (data.success) {
+        setDonations(data.donations);
+        setError(null);
+      } else {
+        setError('Failed to fetch donations');
+      }
+    } catch (err) {
+      setError('Error fetching donations');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">Transaction History</h1>
-          <p className="text-sm text-gray-500">View and manage your donation transactions</p>
+          <h1 className="text-2xl font-bold">Donation History</h1>
+          <p className="text-sm text-gray-500">View and manage your donation history</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="flex items-center gap-2">
-            <RefreshCw className="h-4 w-4" />
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            onClick={refreshData}
+            disabled={loading}
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           <Button variant="outline" className="flex items-center gap-2">
@@ -198,12 +174,18 @@ const TransactionHistory: React.FC = () => {
         </div>
       </div>
       
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+      
       <Card>
         <CardHeader className="pb-0">
           <div className="flex justify-between items-center">
             <CardTitle className="flex items-center gap-2">
               <Filter className="h-5 w-5 text-blue-600" />
-              <span>Filter Transactions</span>
+              <span>Filter Donations</span>
             </CardTitle>
             <Button 
               variant="ghost" 
@@ -212,7 +194,6 @@ const TransactionHistory: React.FC = () => {
                 setSearchTerm('');
                 setDateRange({ start: '', end: '' });
                 setStatusFilter('all');
-                setTypeFilter('all');
               }}
             >
               Clear All
@@ -220,12 +201,12 @@ const TransactionHistory: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent className="pt-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="relative flex items-center md:mt-5">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
               <input
                 type="text"
-                placeholder="Search transactions..."
+                placeholder="Search donations..."
                 className="pl-10 pr-4 py-2 w-full border rounded-lg"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -272,19 +253,6 @@ const TransactionHistory: React.FC = () => {
                 <option value="failed">Failed</option>
               </select>
             </div>
-            
-            <div>
-              <label className="block text-xs mb-1 font-medium">Type</label>
-              <select
-                className="w-full p-2 border rounded-lg"
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-              >
-                <option value="all">All Types</option>
-                <option value="donation">Donation</option>
-                <option value="refund">Refund</option>
-              </select>
-            </div>
           </div>
         </CardContent>
       </Card>
@@ -298,7 +266,7 @@ const TransactionHistory: React.FC = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
                   <th 
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSort('date')}
+                    onClick={() => handleSort('createdAt')}
                   >
                     <div className="flex items-center">
                       <CalendarIcon className="h-4 w-4 mr-1" />
@@ -308,7 +276,17 @@ const TransactionHistory: React.FC = () => {
                   </th>
                   <th 
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSort('organization')}
+                    onClick={() => handleSort('donorName')}
+                  >
+                    <div className="flex items-center">
+                      <User className="h-4 w-4 mr-1" />
+                      Donor
+                      <ArrowDownUp size={14} className="ml-1" />
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                    onClick={() => handleSort('organizationId')}
                   >
                     <div className="flex items-center">
                       Organization
@@ -321,15 +299,6 @@ const TransactionHistory: React.FC = () => {
                   >
                     <div className="flex items-center">
                       Amount
-                      <ArrowDownUp size={14} className="ml-1" />
-                    </div>
-                  </th>
-                  <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSort('type')}
-                  >
-                    <div className="flex items-center">
-                      Type
                       <ArrowDownUp size={14} className="ml-1" />
                     </div>
                   </th>
@@ -348,12 +317,21 @@ const TransactionHistory: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {sortedTransactions.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-10 text-center text-gray-500">
+                      <div className="flex items-center justify-center">
+                        <RefreshCw className="h-6 w-6 mr-2 animate-spin" />
+                        Loading donations...
+                      </div>
+                    </td>
+                  </tr>
+                ) : sortedDonations.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-6 py-10 text-center text-gray-500">
                       <div className="flex flex-col items-center justify-center space-y-2">
                         <Search className="h-8 w-8 text-gray-400" />
-                        <p>No transactions found matching your criteria</p>
+                        <p>No donations found matching your criteria</p>
                         <Button 
                           variant="ghost" 
                           size="sm"
@@ -361,7 +339,6 @@ const TransactionHistory: React.FC = () => {
                             setSearchTerm('');
                             setDateRange({ start: '', end: '' });
                             setStatusFilter('all');
-                            setTypeFilter('all');
                           }}
                         >
                           Clear all filters
@@ -370,14 +347,14 @@ const TransactionHistory: React.FC = () => {
                     </td>
                   </tr>
                 ) : (
-                  sortedTransactions.map(transaction => (
-                    <React.Fragment key={transaction.id}>
+                  sortedDonations.map(donation => (
+                    <React.Fragment key={donation._id}>
                       <tr className="hover:bg-gray-50">
                         <td 
                           className="px-6 py-4 text-gray-400 cursor-pointer"
-                          onClick={() => toggleRowExpanded(transaction.id)}
+                          onClick={() => toggleRowExpanded(donation._id)}
                         >
-                          {expandedRows[transaction.id] ? (
+                          {expandedRows[donation._id] ? (
                             <ChevronUp size={16} />
                           ) : (
                             <ChevronDown size={16} />
@@ -386,49 +363,41 @@ const TransactionHistory: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex flex-col">
                             <span className="font-medium">
-                              {new Date(transaction.date).toLocaleDateString()}
+                              {new Date(donation.createdAt).toLocaleDateString()}
                             </span>
                             <span className="text-xs text-gray-500">
-                              {new Date(transaction.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              {new Date(donation.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex flex-col">
                             <span className="font-medium">
-                              {transaction.organization}
+                              {donation.donorName}
                             </span>
-                            {transaction.campaign && (
-                              <span className="text-xs text-gray-500">
-                                {transaction.campaign}
-                              </span>
-                            )}
+                            <span className="text-xs text-gray-500">
+                              {donation.donorEmail}
+                            </span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`font-medium ${transaction.type === 'refund' ? 'text-red-600' : 'text-green-600'}`}>
-                            {transaction.type === 'refund' ? '-' : '+'}${transaction.amount.toFixed(2)}
+                          {getOrganizationName(donation.organizationId)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="text-green-600 font-medium">
+                            ${donation.amount.toFixed(2)}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            transaction.type === 'donation' 
+                            donation.status === 'completed' 
                               ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            transaction.status === 'completed' 
-                              ? 'bg-green-100 text-green-800' 
-                              : transaction.status === 'pending'
+                              : donation.status === 'pending'
                                 ? 'bg-yellow-100 text-yellow-800'
                                 : 'bg-red-100 text-red-800'
                           }`}>
-                            {getStatusIcon(transaction.status)}
-                            {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                            {getStatusIcon(donation.status)}
+                            {donation.status.charAt(0).toUpperCase() + donation.status.slice(1)}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right">
@@ -437,28 +406,27 @@ const TransactionHistory: React.FC = () => {
                           </Button>
                         </td>
                       </tr>
-                      {expandedRows[transaction.id] && (
+                      {expandedRows[donation._id] && (
                         <tr className="bg-gray-50">
                           <td colSpan={7} className="px-6 py-4">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                               <div className="space-y-3">
                                 <h4 className="font-medium text-sm flex items-center">
                                   <FileText className="h-4 w-4 mr-2 text-gray-500" />
-                                  Transaction Details
+                                  Donation Details
                                 </h4>
                                 <div className="grid grid-cols-2 gap-2 text-sm">
-                                  <div className="text-gray-500">Reference ID:</div>
-                                  <div className="font-medium">{transaction.referenceId}</div>
+                                  <div className="text-gray-500">Payment ID:</div>
+                                  <div className="font-medium">{donation.paymentIntentId}</div>
                                   
-                                  <div className="text-gray-500">Payment Method:</div>
-                                  <div className="flex items-center font-medium">
-                                    {getPaymentMethodIcon(transaction.paymentMethod)}
-                                    {transaction.paymentMethod}
+                                  <div className="text-gray-500">Frequency:</div>
+                                  <div className="font-medium capitalize">
+                                    {donation.frequency.replace('-', ' ')}
                                   </div>
                                   
                                   <div className="text-gray-500">Date & Time:</div>
                                   <div>
-                                    {new Date(transaction.date).toLocaleDateString('en-US', {
+                                    {new Date(donation.createdAt).toLocaleDateString('en-US', {
                                       year: 'numeric',
                                       month: 'long',
                                       day: 'numeric',
@@ -479,12 +447,10 @@ const TransactionHistory: React.FC = () => {
                                     <Download className="h-4 w-4 mr-2" />
                                     Download Receipt
                                   </Button>
-                                  {transaction.taxReceipt && (
-                                    <Button variant="outline" size="sm" className="w-full justify-start">
-                                      <FileText className="h-4 w-4 mr-2" />
-                                      Tax Receipt (PDF)
-                                    </Button>
-                                  )}
+                                  <Button variant="outline" size="sm" className="w-full justify-start">
+                                    <FileText className="h-4 w-4 mr-2" />
+                                    Tax Receipt (PDF)
+                                  </Button>
                                 </div>
                               </div>
                               
@@ -494,16 +460,10 @@ const TransactionHistory: React.FC = () => {
                                   Actions
                                 </h4>
                                 <div className="space-y-2">
-                                  {transaction.status === 'pending' && (
+                                  {donation.status === 'pending' && (
                                     <Button variant="outline" size="sm" className="w-full justify-start text-red-600 hover:bg-red-50">
                                       <XCircle className="h-4 w-4 mr-2" />
-                                      Cancel Transaction
-                                    </Button>
-                                  )}
-                                  {transaction.status === 'failed' && (
-                                    <Button size="sm" className="w-full justify-start">
-                                      <RefreshCw className="h-4 w-4 mr-2" />
-                                      Retry Payment
+                                      Cancel Donation
                                     </Button>
                                   )}
                                   <Button variant="ghost" size="sm" className="w-full justify-start text-gray-600">
@@ -525,11 +485,11 @@ const TransactionHistory: React.FC = () => {
         </CardContent>
       </Card>
       
-      {sortedTransactions.length > 0 && (
+      {sortedDonations.length > 0 && (
         <div className="flex justify-between items-center text-sm text-gray-500">
           <div>
-            Showing <span className="font-medium">1-{sortedTransactions.length}</span> of{' '}
-            <span className="font-medium">{sortedTransactions.length}</span> transactions
+            Showing <span className="font-medium">1-{sortedDonations.length}</span> of{' '}
+            <span className="font-medium">{sortedDonations.length}</span> donations
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" disabled>
