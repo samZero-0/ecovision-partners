@@ -1,9 +1,10 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, DollarSign, Calendar, TrendingUp } from 'lucide-react';
 import axios from 'axios';
+import { AuthContext } from '@/providers/AuthProvider';
 
 const data = [
   { name: 'Jan', users: 400, donations: 2400, events: 8 },
@@ -18,12 +19,32 @@ const Overview = () => {
 
   const [users,setUsers] = useState([]);
   const [events,setEvents] = useState([]);
+  // const {totalDontations} = useContext(AuthContext);
+  const [donations,setDonations] = useState([]);
+  const [total, setTotal] = useState(0);
+
 
   axios.get('https://ecovision-backend-five.vercel.app/users')
   .then(res=> setUsers(res.data))
 
   axios.get('https://ecovision-backend-five.vercel.app/events')
-  .then(res=> setEvents(res.data))
+  .then(res=> setEvents(res.data)
+
+)
+useEffect(() => {
+  axios.get('https://ecovision-backend-five.vercel.app/donations')
+    .then(res => {
+      const donationsData = res.data.donations;
+      setDonations(donationsData);
+      
+      const sum = donationsData.reduce((acc, donation) => acc + donation.amount, 0);
+      setTotal(sum);
+    })
+    .catch(error => {
+      console.error('Error fetching donations:', error);
+    });
+}, []);
+
 
   return (
     <div className="p-6">
@@ -49,7 +70,7 @@ const Overview = () => {
             </div>
             <div>
               <p className="text-sm text-gray-500">Total Donations</p>
-              <h3 className="text-2xl font-bold">$42,800</h3>
+              <h3 className="text-2xl font-bold">{total}$</h3>
             </div>
           </CardContent>
         </Card>

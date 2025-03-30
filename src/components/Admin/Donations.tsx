@@ -1,55 +1,139 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, Download, ChevronDown, DollarSign, TrendingUp, Users, Calendar } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-
-// Mock donation data
-const donationData = [
-  { id: 1, donor: 'John Smith', email: 'john@example.com', amount: 250, date: '2025-03-25', campaign: 'Spring Drive', status: 'Completed' },
-  { id: 2, donor: 'Alice Johnson', email: 'alice@example.com', amount: 1000, date: '2025-03-24', campaign: 'Building Fund', status: 'Completed' },
-  { id: 3, donor: 'Robert Wilson', email: 'robert@example.com', amount: 75, date: '2025-03-22', campaign: 'Spring Drive', status: 'Completed' },
-  { id: 4, donor: 'Emily Davis', email: 'emily@example.com', amount: 500, date: '2025-03-20', campaign: 'General Fund', status: 'Completed' },
-  { id: 5, donor: 'Michael Brown', email: 'michael@example.com', amount: 150, date: '2025-03-19', campaign: 'Building Fund', status: 'Completed' },
-  { id: 6, donor: 'Sarah Miller', email: 'sarah@example.com', amount: 300, date: '2025-03-18', campaign: 'Spring Drive', status: 'Completed' },
-  { id: 7, donor: 'David Garcia', email: 'david@example.com', amount: 450, date: '2025-03-15', campaign: 'General Fund', status: 'Completed' },
-];
-
-// Chart data
-const monthlyData = [
-  { name: 'Jan', amount: 12400 },
-  { name: 'Feb', amount: 14800 },
-  { name: 'Mar', amount: 18650 },
-  { name: 'Apr', amount: 16500 },
-  { name: 'May', amount: 20100 },
-  { name: 'Jun', amount: 22300 },
-];
-
-const campaignData = [
-  { name: 'General Fund', amount: 25400 },
-  { name: 'Building Fund', amount: 18900 },
-  { name: 'Spring Drive', amount: 15600 },
-  { name: 'Emergency Relief', amount: 9800 },
-  { name: 'Youth Programs', amount: 12300 },
-];
+import { AuthContext } from '@/providers/AuthProvider';
 
 const Donations = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  
+  const [donationData, setDonationData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+
+  // Fetch donation data from the API
+  useEffect(() => {
+    const fetchDonations = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('https://ecovision-backend-five.vercel.app/donations');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.donations) {
+          // Transform API data to match the format expected by the UI
+          const formattedDonations = data.donations.map((donation, index) => ({
+            id: donation._id || index,
+            donor: donation.donorName || 'Anonymous',
+            email: donation.donorEmail || 'anonymous',
+            amount: donation.amount || 0,
+            date: new Date(donation.createdAt).toISOString().split('T')[0],
+            campaign: donation.organizationId ? `Campaign ${donation.organizationId}` : 'General Fund',
+            status: donation.status || 'Pending',
+            frequency: donation.frequency || 'one-time'
+          }));
+          
+          setDonationData(formattedDonations);
+        } else {
+          throw new Error('No donation data available');
+        }
+      } catch (err) {
+        console.error('Error fetching donation data:', err);
+        setError(err.message);
+        // Use mock data as fallback if API fails
+        setDonationData([
+          { id: 1, donor: 'John Smith', email: 'john@example.com', amount: 250, date: '2025-03-25', campaign: 'Spring Drive', status: 'Completed' },
+          { id: 2, donor: 'Alice Johnson', email: 'alice@example.com', amount: 1000, date: '2025-03-24', campaign: 'Building Fund', status: 'Completed' },
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDonations();
+  }, []);
+
+  // Filter donations based on search term
   const filteredDonations = donationData.filter(donation => 
     donation.donor.toLowerCase().includes(searchTerm.toLowerCase()) || 
     donation.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     donation.campaign.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
+  // Calculate statistics based on the actual donation data
   const totalDonations = donationData.reduce((sum, donation) => sum + donation.amount, 0);
-  const avgDonation = totalDonations / donationData.length;
+  const avgDonation = donationData.length > 0 ? totalDonations / donationData.length : 0;
   const totalDonors = new Set(donationData.map(d => d.email)).size;
   
+
+  // Calculate donations in the last 30 days
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const recentDonations = donationData.filter(d => new Date(d.date) >= thirtyDaysAgo);
+  const recentTotal = recentDonations.reduce((sum, d) => sum + d.amount, 0);
+
+  // Generate monthly data based on actual donations
+  const generateMonthlyData = () => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthlyTotals = Array(12).fill(0);
+    
+    donationData.forEach(donation => {
+      const date = new Date(donation.date);
+      const monthIndex = date.getMonth();
+      monthlyTotals[monthIndex] += donation.amount;
+    });
+    
+    return months.map((name, index) => ({
+      name,
+      amount: monthlyTotals[index]
+    }));
+  };
+
+  // Generate campaign data based on actual donations
+  const generateCampaignData = () => {
+    const campaigns = {};
+    
+    donationData.forEach(donation => {
+      const campaign = donation.campaign;
+      if (!campaigns[campaign]) {
+        campaigns[campaign] = 0;
+      }
+      campaigns[campaign] += donation.amount;
+    });
+    
+    return Object.entries(campaigns).map(([name, amount]) => ({
+      name,
+      amount
+    }));
+  };
+
+  const monthlyData = generateMonthlyData();
+  const campaignData = generateCampaignData();
+  
+  if (isLoading) {
+    return (
+      <div className="p-6 flex justify-center items-center h-screen">
+        <p>Loading donation data...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">Donations</h1>
+      
+      {error && (
+        <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg">
+          <p>Error loading donation data: {error}</p>
+          <p>Showing fallback data.</p>
+        </div>
+      )}
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card>
@@ -95,7 +179,7 @@ const Donations = () => {
             </div>
             <div>
               <p className="text-sm text-gray-500">Last 30 Days</p>
-              <h3 className="text-2xl font-bold">+${donationData.reduce((sum, d) => sum + d.amount, 0).toLocaleString()}</h3>
+              <h3 className="text-2xl font-bold">+${recentTotal.toLocaleString()}</h3>
             </div>
           </CardContent>
         </Card>
@@ -162,29 +246,47 @@ const Donations = () => {
                   <th className="pb-3 px-4">Date</th>
                   <th className="pb-3 px-4">Campaign</th>
                   <th className="pb-3 px-4">Status</th>
+                  <th className="pb-3 px-4">Frequency</th>
                   <th className="pb-3 px-4"></th>
                 </tr>
               </thead>
               <tbody>
-                {filteredDonations.map((donation) => (
-                  <tr key={donation.id} className="border-b hover:bg-gray-50">
-                    <td className="py-4 px-4">{donation.donor}</td>
-                    <td className="py-4 px-4 text-gray-500">{donation.email}</td>
-                    <td className="py-4 px-4 font-medium">${donation.amount.toLocaleString()}</td>
-                    <td className="py-4 px-4 text-gray-500">{donation.date}</td>
-                    <td className="py-4 px-4">{donation.campaign}</td>
-                    <td className="py-4 px-4">
-                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                        {donation.status}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <button className="text-blue-600 hover:text-blue-800">
-                        <ChevronDown className="h-5 w-5" />
-                      </button>
+                {filteredDonations.length > 0 ? (
+                  filteredDonations.map((donation) => (
+                    <tr key={donation.id} className="border-b hover:bg-gray-50">
+                      <td className="py-4 px-4">{donation.donor}</td>
+                      <td className="py-4 px-4 text-gray-500">{donation.email}</td>
+                      <td className="py-4 px-4 font-medium">${donation.amount.toLocaleString()}</td>
+                      <td className="py-4 px-4 text-gray-500">{donation.date}</td>
+                      <td className="py-4 px-4">{donation.campaign}</td>
+                      <td className="py-4 px-4">
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          donation.status.toLowerCase() === 'completed' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {donation.status}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                          {donation.frequency}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <button className="text-blue-600 hover:text-blue-800">
+                          <ChevronDown className="h-5 w-5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="8" className="py-4 px-4 text-center text-gray-500">
+                      No donations found
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

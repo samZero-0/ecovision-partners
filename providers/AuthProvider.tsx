@@ -25,6 +25,7 @@ interface AuthProviderProps {
 const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const auth = getAuth(app);
     const [user, setUser] = useState<any>(null);
+    const [totalDontations, setTotalDonations] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [isDarkMode, setDarkMode] = useState(false);
     const [cart, setCart] = useState<any[]>([]);
@@ -34,6 +35,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [isVolunteer, setIsVolunter] = useState(false);
     const [isDonor, setIsDonor] = useState(false);
     const [allUsers, setAllUsers] = useState<any[]>([]);
+
 
     const toggleDarkMode = () => setDarkMode((prevMode) => !prevMode);
 
@@ -77,7 +79,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         logOut: () => signOut(auth),
         user, loading, setUser, toggleDarkMode, isDarkMode, setDarkMode,
         cart, setCart, amount, setAmount, invoice, setInvoice,
-        isAdmin, isVolunteer, isDonor,
+        isAdmin, isVolunteer, isDonor,setTotalDonations
     };
 
     return <AuthContext.Provider value={userInfo}>{children}</AuthContext.Provider>;

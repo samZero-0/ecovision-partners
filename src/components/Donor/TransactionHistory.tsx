@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
@@ -9,6 +9,7 @@ import {
   Clock, XCircle, Receipt, RefreshCw, FileText, Filter,
   Calendar as CalendarIcon, ArrowRight, MoreVertical, User
 } from 'lucide-react';
+import { AuthContext } from '@/providers/AuthProvider';
 
 interface Donation {
   _id: string;
@@ -23,6 +24,7 @@ interface Donation {
 }
 
 const TransactionHistory: React.FC = () => {
+  const { user } = useContext(AuthContext);
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +45,11 @@ const TransactionHistory: React.FC = () => {
         const response = await fetch('https://ecovision-backend-five.vercel.app/donations');
         const data = await response.json();
         if (data.success) {
-          setDonations(data.donations);
+          // Filter donations to only show those from the current user
+          const userDonations = data.donations.filter(
+            (donation: Donation) => donation.donorEmail === user?.email
+          );
+          setDonations(userDonations);
         } else {
           setError('Failed to fetch donations');
         }
@@ -54,8 +60,10 @@ const TransactionHistory: React.FC = () => {
       }
     };
     
-    fetchDonations();
-  }, []);
+    if (user?.email) {
+      fetchDonations();
+    }
+  }, [user?.email]);
   
   const handleSort = (field: keyof Donation) => {
     if (sortField === field) {
@@ -76,7 +84,6 @@ const TransactionHistory: React.FC = () => {
   const filteredDonations = donations.filter(donation => {
     const matchesSearch = 
       donation.donorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      donation.donorEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
       donation.organizationId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       donation.paymentIntentId.toLowerCase().includes(searchTerm.toLowerCase());
     
@@ -138,7 +145,11 @@ const TransactionHistory: React.FC = () => {
       const response = await fetch('https://ecovision-backend-five.vercel.app/donations');
       const data = await response.json();
       if (data.success) {
-        setDonations(data.donations);
+        // Filter donations to only show those from the current user
+        const userDonations = data.donations.filter(
+          (donation: Donation) => donation.donorEmail === user?.email
+        );
+        setDonations(userDonations);
         setError(null);
       } else {
         setError('Failed to fetch donations');
@@ -276,16 +287,6 @@ const TransactionHistory: React.FC = () => {
                   </th>
                   <th 
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSort('donorName')}
-                  >
-                    <div className="flex items-center">
-                      <User className="h-4 w-4 mr-1" />
-                      Donor
-                      <ArrowDownUp size={14} className="ml-1" />
-                    </div>
-                  </th>
-                  <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                     onClick={() => handleSort('organizationId')}
                   >
                     <div className="flex items-center">
@@ -331,7 +332,7 @@ const TransactionHistory: React.FC = () => {
                     <td colSpan={7} className="px-6 py-10 text-center text-gray-500">
                       <div className="flex flex-col items-center justify-center space-y-2">
                         <Search className="h-8 w-8 text-gray-400" />
-                        <p>No donations found matching your criteria</p>
+                        <p>{donations.length === 0 ? 'You have no donations yet.' : 'No donations match the current filter.'}</p>
                         <Button 
                           variant="ghost" 
                           size="sm"
@@ -367,16 +368,6 @@ const TransactionHistory: React.FC = () => {
                             </span>
                             <span className="text-xs text-gray-500">
                               {new Date(donation.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex flex-col">
-                            <span className="font-medium">
-                              {donation.donorName}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {donation.donorEmail}
                             </span>
                           </div>
                         </td>
