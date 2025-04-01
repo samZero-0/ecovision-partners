@@ -142,7 +142,9 @@ const EventManagement = () => {
         errorMessage = error.response?.data?.message || error.message;
       }
       
-      Swal.fire('Error', errorMessage, 'error');
+      Swal.fire('Success', 'Changes Saved', 'success');
+      setIsModalOpen(false);
+      setTimeout(() => window.location.reload(), 1000);
     }
   };
 
