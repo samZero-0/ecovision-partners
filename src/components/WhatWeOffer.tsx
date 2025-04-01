@@ -78,11 +78,11 @@ const WhatWeOffer = () => {
             viewport={{ once: true }}
             className="flex items-center justify-center gap-2 mb-4"
           >
-            <Sparkles className="w-5 h-5 text-purple-500" />
-            <span className="text-sm font-semibold text-purple-500 tracking-wider uppercase">
+            <Sparkles className="w-5 h-5 text-teal-500" />
+            <span className="text-sm font-semibold text-black tracking-wider uppercase">
               Our Services
             </span>
-            <Sparkles className="w-5 h-5 text-purple-500" />
+            <Sparkles className="w-5 h-5 text-teal-500" />
           </motion.div>
           
           <motion.h2
@@ -90,7 +90,7 @@ const WhatWeOffer = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600"
+            className="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-blue-800"
           >
             What We Offer
           </motion.h2>
@@ -136,7 +136,7 @@ const WhatWeOffer = () => {
               </div>
               
               <div className="px-8 py-4 bg-gray-50 border-t">
-                <button className="text-purple-600 font-medium flex items-center gap-2 group-hover:gap-3 transition-all">
+                <button className="text-teal-600 font-medium flex items-center gap-2 group-hover:gap-3 transition-all">
                   Learn More
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -185,7 +185,7 @@ const WhatWeOffer = () => {
           <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
             Let's work together to bring your vision to life. Our team of expert event planners is here to help you every step of the way.
           </p>
-          <button className="bg-purple-600 text-white px-8 py-4 rounded-full font-medium hover:bg-purple-700 transition-colors flex items-center gap-2 mx-auto">
+          <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-teal-700 transition-colors flex items-center gap-2 mx-auto">
             Schedule a Consultation
             <ChevronRight className="w-5 h-5" />
           </button>

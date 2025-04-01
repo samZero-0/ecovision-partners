@@ -23,7 +23,7 @@ const PricingPackages = () => {
       icon: Star,
       price: 499,
       description: "Perfect for small events and gatherings",
-      color: "from-blue-500 to-blue-600",
+      color: "from-teal-500 to-teal-600",
       features: [
         { text: "Up to 50 guests", icon: Users },
         { text: "Basic venue decoration", icon: Sparkles },
@@ -41,7 +41,7 @@ const PricingPackages = () => {
       icon: Crown,
       price: 999,
       description: "Ideal for medium-sized events with premium touches",
-      color: "from-purple-500 to-purple-600",
+      color: "from-blue-700 to-blue-800",
       popular: true,
       features: [
         { text: "Up to 150 guests", icon: Users },
@@ -62,7 +62,7 @@ const PricingPackages = () => {
       icon: Zap,
       price: 1999,
       description: "For large-scale luxury events with full customization",
-      color: "from-amber-500 to-amber-600",
+      color: "from-orange-500 to-orange-600",
       features: [
         { text: "Up to 300 guests", icon: Users },
         { text: "Luxury custom decoration", icon: Sparkles },
@@ -231,7 +231,7 @@ const PricingPackages = () => {
               transition={{ delay: index * 0.1 }}
               className="bg-gray-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-700 hover:border-purple-500/30 transition-colors"
             >
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center mb-4 shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-700 rounded-lg flex items-center justify-center mb-4 shadow-lg">
                 <feature.icon className="w-6 h-6 text-white" />
               </div>
               <h4 className="text-lg font-semibold text-white mb-2">{feature.title}</h4>

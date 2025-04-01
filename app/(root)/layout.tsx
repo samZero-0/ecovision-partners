@@ -30,7 +30,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {/* Wrap the entire application with AuthProvider */}
         <AuthProvider>
-          <nav>
+          <nav >
             <NavBar />
           </nav>
 

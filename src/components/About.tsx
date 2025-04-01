@@ -65,7 +65,7 @@ const AboutUsSection = () => {
               className="text-4xl font-bold text-gray-800 mb-8 leading-tight"
             >
               Our Mission: Driving
-              <span className="text-green-600"> Environmental Impact</span>
+              <span className="text-teal-500"> Environmental Impact</span>
             </motion.h2>
             
             <motion.p 
@@ -83,10 +83,10 @@ const AboutUsSection = () => {
             >
               <motion.div 
                 whileHover={{ y: -5 }}
-                className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-2xl shadow-sm"
+                className="bg-gradient-to-br from-teal-50 to-teal-100 p-6 rounded-2xl shadow-sm"
               >
-                <Globe className="w-12 h-12 text-green-600 mb-4" />
-                <h3 className="font-bold text-green-800 text-xl mb-2">12</h3>
+                <Globe className="w-12 h-12 text-teal-600 mb-4" />
+                <h3 className="font-bold text-teal-800 text-xl mb-2">12</h3>
                 <p className="text-green-600">Global Initiatives</p>
               </motion.div>
               
@@ -101,7 +101,7 @@ const AboutUsSection = () => {
               
               <motion.div 
                 whileHover={{ y: -5 }}
-                className="bg-gradient-to-br from-teal-50 to-teal-100 p-6 rounded-2xl shadow-sm"
+                className="bg-gradient-to-br from-green-50 to-teal-100 p-6 rounded-2xl shadow-sm"
               >
                 <Award className="w-12 h-12 text-teal-600 mb-4" />
                 <h3 className="font-bold text-teal-800 text-xl mb-2">205,000+</h3>
@@ -122,7 +122,7 @@ const AboutUsSection = () => {
               </p>
               <motion.button 
                 whileHover={{ x: 5 }}
-                className="flex items-center mt-4 text-green-600 font-semibold"
+                className="flex items-center mt-4 text-teal-600 font-semibold"
               >
                 Learn more <ArrowRight className="ml-2 w-4 h-4" />
               </motion.button>

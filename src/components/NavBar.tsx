@@ -37,7 +37,7 @@ const Navbar = () => {
   console.log(isAdmin, isDonor, isVolunteer);
   
   return (
-    <section className="sticky top-0 z-50 shadow-md bg-gradient-to-r from-emerald-50/80 to-teal-50/80 backdrop-blur-md">
+    <section className="sticky top-0 z-50 shadow-md bg-gradient-to-r from-emerald-50/80 to-teal-50/80 ">
       <section className="md:w-11/12 md:mx-auto">
         <div className="navbar py-3">
           {/* Navbar Start */}
@@ -48,11 +48,11 @@ const Navbar = () => {
             >
               {hamburger ? <AiOutlineClose size={24} className="text-teal-700" /> : <AiOutlineMenu size={24} className="text-teal-700" />}
             </button>
-            <Link href="/" className="btn btn-ghost text-xl hidden lg:flex items-center gap-2">
+            <Link href="/" className=" text-xl hidden lg:flex items-center gap-2">
               <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-emerald-500">
                 Ecovision
               </span>
-              <span className="text-lg font-medium text-gray-700">Partners</span>
+              <span className="text-3xl font-medium text-gray-700">Partners</span>
             </Link>
           </div>
 
