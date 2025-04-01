@@ -80,6 +80,11 @@ export function SidebarDemoDonor() {
         "min-h-scren", // for your use case, use `h-screen` instead of `h-[60vh]`
       )}
     >
+
+
+
+
+      <div className="sticky top-0 h-screen overflow-y-auto">
       <Sidebar open={open} setOpen={setOpen} animate={true}>
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
@@ -107,6 +112,7 @@ export function SidebarDemoDonor() {
           </div>
         </SidebarBody>
       </Sidebar>
+      </div>
      
     </div>
   );
