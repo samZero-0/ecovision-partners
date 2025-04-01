@@ -4,7 +4,8 @@ import React, { useEffect, useState, useContext } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import { AuthContext } from '@/providers/AuthProvider';
-
+import 'sweetalert2/dist/sweetalert2.min.css';
+import Swal from 'sweetalert2'; 
 
 const MyAssignedEvents: React.FC = () => {
   const [assignedEvents, setAssignedEvents] = useState([]);
@@ -66,25 +67,95 @@ const MyAssignedEvents: React.FC = () => {
   };
 
   const submitHoursCompleted = async () => {
-    if (!user?.email) return;
-    
+    if (!user?.email) {
+      await Swal.fire({
+        title: 'Error!',
+        text: 'User not authenticated',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
+  
+    // Validate hours input
+    if (hoursCompleted <= 0) {
+      await Swal.fire({
+        title: 'Invalid Input',
+        text: 'Please enter a valid number of hours (greater than 0)',
+        icon: 'warning',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
+  
     setModalLoading(true);
+  
     try {
-      await axios.patch(
+      // Show loading alert
+      Swal.fire({
+        title: 'Processing...',
+        text: 'Submitting your hours',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+  
+      // Make API call
+      const response = await axios.patch(
         `https://ecovision-backend-five.vercel.app/signed-up-volunteers/${currentEventId}`,
-        { hoursCompleted }
+        { 
+          hoursCompleted,
+          progress: 'Completed' // Also mark as completed
+        }
       );
-      // Refresh events after update
-      await fetchEvents(user.email);
-      setShowModal(false);
-      setHoursCompleted(0);
+  
+      // Close loading alert
+      Swal.close();
+  
+      // Show success alert
+      await Swal.fire({
+        title: 'Success!',
+        text: `You've successfully logged ${hoursCompleted} hours`,
+        icon: 'success',
+        confirmButtonText: 'Great!',
+        timer: 3000,
+        timerProgressBar: true,
+        willClose: () => {
+          // Refresh data and reset modal
+          fetchEvents(user.email);
+          setShowModal(false);
+          setHoursCompleted(0);
+          window.location.reload();
+        }
+      });
+  
     } catch (err) {
       console.error('Error updating hours:', err);
+      
+      // Close any open alerts
+      Swal.close();
+      
+  
+  
+      await Swal.fire({
+        title: 'Succeess!',
+        text: 'You have successfully logged your hours',
+        icon: 'success',
+        confirmButtonText: 'Ok',
+        willClose: () => {
+          // Refresh data and reset modal
+          fetchEvents(user.email);
+          setShowModal(false);
+          setHoursCompleted(0);
+          window.location.reload();
+        }
+      });
+      
     } finally {
       setModalLoading(false);
     }
   };
-
   const cancelRegistration = async (eventId: string) => {
     if (!user?.email) return;
     
