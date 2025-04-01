@@ -124,7 +124,7 @@ const AuthContent = () => {
       <div className="w-1/2 flex items-center justify-center p-12 bg-white">
         <div className="w-full max-w-md">
           <div className="flex items-center mb-8">
-            <div className="w-8 h-8 bg-purple-600 rounded-lg mr-3"></div>
+            <div className="w-8 h-8 bg-blue-800 rounded-lg mr-3"></div>
             <h1 className="text-2xl font-bold text-gray-800">Ecovision Partners</h1>
           </div>
 
@@ -188,7 +188,7 @@ const AuthContent = () => {
                     Remember for 30 days
                   </label>
                 </div>
-                <a href="#" className="text-purple-600 hover:underline">
+                <a href="#" className="text-blue-600 hover:underline">
                   Forgot password
                 </a>
               </div>
@@ -196,7 +196,7 @@ const AuthContent = () => {
 
             <button 
               type="submit" 
-              className="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition duration-300"
+              className="w-full bg-blue-900 text-white py-3 rounded-lg hover:bg-purple-700 transition duration-300"
               disabled={isLoading}
             >
               {isLoading ? 'Processing...' : isLogin ? 'Sign in' : 'Sign up'}
@@ -225,7 +225,7 @@ const AuthContent = () => {
                   <Link href='/register'
                     type="button" 
                     onClick={() => setIsLogin(false)}
-                    className="text-purple-600 ml-1 hover:underline"
+                    className="text-blue-600 ml-1 hover:underline"
                   >
                     Sign up
                   </Link>
@@ -248,45 +248,52 @@ const AuthContent = () => {
       </div>
 
       {/* Illustration Section */}
-      <div className="w-1/2 bg-purple-500 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/api/placeholder/900/1600')] opacity-10"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-purple-900/50"></div>
+          {/* Illustration Section */}
+          <div className="w-1/2 bg-gradient-to-br from-blue-800 to-blue-900 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <img 
+            src="https://media.istockphoto.com/id/907843354/photo/two-businesswomen-working-on-computer-in-office.jpg?s=612x612&w=0&k=20&c=yvp6O83JSvT5md2u-XYwOzHVHXqM5ez_-CIKH3Hj9GI=" 
+            alt="Office workspace" 
+            className="object-cover w-full h-full opacity-30"
+          />
+        </div>
         
-        <div className="relative z-10 flex flex-col justify-center items-center h-full text-white text-center px-12">
-          <div className="w-full max-w-md">
-            <div className="relative">
-              <div className="w-64 h-64 bg-purple-600/30 rounded-full absolute -top-24 -left-24"></div>
-              <div className="w-96 h-96 bg-purple-600/20 rounded-full absolute -bottom-24 -right-24"></div>
+        <div className="relative z-10 flex flex-col justify-center items-center h-full text-white p-12">
+          <div className="max-w-md text-center">
+            <h2 className="text-4xl font-bold mb-6">Transform Your Workflow</h2>
+            <p className="text-xl mb-8">Join thousands of professionals who trust us to streamline their daily operations.</p>
+            
+            <div className="space-y-6">
+              <div className="flex items-center space-x-4 bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+                <div className="flex-shrink-0">
+                  <ChevronRight className="w-6 h-6" />
+                </div>
+                <p className="text-sm">Secure and reliable  </p>
+              </div>
               
-              <div className="relative z-10">
-                <div className="absolute top-0 left-0 w-full h-full">
-                  {[1,2,3,4,5].map((_, i) => (
-                    <div 
-                      key={i} 
-                      className="absolute rounded-full bg-white/10"
-                      style={{
-                        width: `${Math.random() * 30 + 10}px`,
-                        height: `${Math.random() * 30 + 10}px`,
-                        top: `${Math.random() * 100}%`,
-                        left: `${Math.random() * 100}%`
-                      }}
-                    />
-                  ))}
+              <div className="flex items-center space-x-4 bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+                <div className="flex-shrink-0">
+                  <ChevronRight className="w-6 h-6" />
                 </div>
-
-                <div className="relative z-20 text-white">
-                  <p className="text-2xl font-semibold mb-4">
-                    Streamline Your Workflow
-                  </p>
-                  <p className="text-white/80">
-                    Discover a seamless authentication experience that combines security with simplicity.
-                  </p>
+                <p className="text-sm">Real-time collaboration tools</p>
+              </div>
+              
+              <div className="flex items-center space-x-4 bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+                <div className="flex-shrink-0">
+                  <ChevronRight className="w-6 h-6" />
                 </div>
+                <p className="text-sm">Advanced analytics and reporting</p>
               </div>
             </div>
           </div>
         </div>
+
+
+        <div className="absolute bottom-0 left-0 w-full h-64 bg-gradient-to-t from-black/20 to-transparent"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full -ml-48 -mb-48 blur-3xl"></div>
       </div>
+
     </div>
   );
 };

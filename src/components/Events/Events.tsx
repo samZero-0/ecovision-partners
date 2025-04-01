@@ -174,7 +174,7 @@ const EventsPage = () => {
                   </div>
                   <button
                     onClick={() => handleJoinEvent(event._id)}
-                    className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition-colors duration-200"
+                    className="w-full bg-teal-600 text-white py-2 rounded-lg hover:bg-green-600 transition-colors duration-200"
                   >
                     Join Event
                   </button>

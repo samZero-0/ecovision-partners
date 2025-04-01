@@ -8,6 +8,7 @@ import 'swiper/css/pagination';
 import 'swiper/css/effect-fade';
 import 'swiper/css/navigation';
 import { Leaf, Globe, HandHelping, ArrowRight, ChevronDown } from 'lucide-react';
+import Link from 'next/link';
 
 const MissionBanner = () => {
   useEffect(() => {
@@ -66,10 +67,11 @@ const MissionBanner = () => {
               <p className="text-xl md:text-2xl max-w-2xl mx-auto mb-8 drop-shadow-md animate-slide-up-delay">
                 Empowering communities to create lasting environmental change
               </p>
+              <Link href='/login'>
               <button className="bg-teal-500 hover:bg-green-600 text-white px-8 py-4 rounded-full flex items-center mx-auto space-x-3 transition-all duration-300 transform hover:scale-105 hover:shadow-lg animate-bounce-in">
                 <span className="text-lg">Learn More</span>
                 <ArrowRight className="w-6 h-6" />
-              </button>
+              </button></Link>
             </div>
           </div>
         </SwiperSlide>
@@ -126,14 +128,16 @@ const MissionBanner = () => {
                 Event management, volunteer coordination, and secure donation processing
               </p>
               <div className="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-6">
+                <Link href='/login'>
                 <button className="group bg-teal-500 hover:bg-teal-600 text-white px-8 py-4 rounded-full flex items-center justify-center space-x-3 transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
                   <span className="text-lg">Register Now</span>
                   <ChevronDown className="w-6 h-6 transition-transform group-hover:translate-y-1" />
-                </button>
-                <button className="group bg-white text-teal-800 hover:bg-gray-100 px-8 py-4 rounded-full flex items-center justify-center space-x-3 transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                </button></Link>
+               <Link href='/login'>
+               <button className="group bg-white text-teal-800 hover:bg-gray-100 px-8 py-4 rounded-full flex items-center justify-center space-x-3 transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
                   <span className="text-lg">Support Us</span>
                   <HandHelping className="w-6 h-6 transition-transform group-hover:rotate-12" />
-                </button>
+                </button></Link>
               </div>
             </div>
           </div>
