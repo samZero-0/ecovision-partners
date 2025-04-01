@@ -1,14 +1,10 @@
 'use client'
 
 import { useContext, useEffect, useState } from "react";
-
 import { AiOutlineLogin } from "react-icons/ai";
 import { AuthContext } from "../../providers/AuthProvider";
-// import { DarkModeSwitch } from "react-toggle-dark-mode";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
-// import { FaCartPlus } from "react-icons/fa";
 import Link from "next/link";
-// import Image from "next/image";
 
 const Navbar = () => {
   const [hamburger, setHamburger] = useState(false);
@@ -40,67 +36,74 @@ const Navbar = () => {
   console.log(user);
   console.log(isAdmin, isDonor, isVolunteer);
   
-
   return (
-    <section className="sticky top-0 z-50 backdrop-blur-lg bg-white ">
+    <section className="sticky top-0 z-50 shadow-md bg-gradient-to-r from-emerald-50/80 to-teal-50/80 backdrop-blur-md">
       <section className="md:w-11/12 md:mx-auto">
-        <div className="navbar">
+        <div className="navbar py-3">
           {/* Navbar Start */}
           <div className="navbar-start flex items-center">
             <button
-              className="lg:hidden btn btn-ghost btn-circle"
+              className="lg:hidden btn btn-ghost btn-circle bg-teal-50 hover:bg-teal-100 transition-colors"
               onClick={() => setHamburger(!hamburger)}
             >
-              {hamburger ? <AiOutlineClose size={24} /> : <AiOutlineMenu size={24} />}
+              {hamburger ? <AiOutlineClose size={24} className="text-teal-700" /> : <AiOutlineMenu size={24} className="text-teal-700" />}
             </button>
-            <Link href="/" className="btn btn-ghost text-xl hidden lg:block">
-              <h3>Ecovision Partners</h3>
+            <Link href="/" className="btn btn-ghost text-xl hidden lg:flex items-center gap-2">
+              <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-emerald-500">
+                Ecovision
+              </span>
+              <span className="text-lg font-medium text-gray-700">Partners</span>
             </Link>
           </div>
 
           {/* Navbar Center */}
           <div className="navbar-center hidden lg:flex">
-            <ul className="menu menu-horizontal px-1 text-base ">
+            <ul className="flex space-x-8 text-base font-medium">
               <li>
-                <Link href="/">Home</Link>
+                <Link href="/" className="relative py-2 px-1 text-gray-700 hover:text-teal-600 transition-colors after:absolute after:w-0 after:h-0.5 after:bg-teal-500 after:bottom-0 after:left-0 hover:after:w-full after:transition-all">
+                  Home
+                </Link>
               </li>
               <li>
-                <Link href="/">About</Link>
+                <Link href="/" className="relative py-2 px-1 text-gray-700 hover:text-teal-600 transition-colors after:absolute after:w-0 after:h-0.5 after:bg-teal-500 after:bottom-0 after:left-0 hover:after:w-full after:transition-all">
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link href="/events" className="relative py-2 px-1 text-gray-700 hover:text-teal-600 transition-colors after:absolute after:w-0 after:h-0.5 after:bg-teal-500 after:bottom-0 after:left-0 hover:after:w-full after:transition-all">
+                  Events
+                </Link>
               </li>
             </ul>
           </div>
 
           {/* Navbar End */}
           <div className="navbar-end flex items-center">
-            
-          
-            {/* <div className="md:mr-8 mr-3">
-              <DarkModeSwitch checked={isDarkMode} onChange={toggleDarkMode} size={30} />
-            </div> */}
             {user && user.email ? (
               <div className="dropdown dropdown-end">
-                <div tabIndex={0} className="btn btn-ghost btn-circle avatar">
+                <div tabIndex={0} className="btn btn-ghost btn-circle avatar ring-2 ring-teal-300 ring-offset-2">
                   <div className="w-10 rounded-full">
                     <img src={user.photoURL} alt="User Avatar" width={10} />
                   </div>
                 </div>
                 <ul
                   tabIndex={0}
-                  className="menu dropdown-content bg-base-200 rounded-box z-[50] mt-2 w-52 p-2 shadow"
+                  className="menu dropdown-content bg-white rounded-lg z-[50] mt-2 w-52 p-2 shadow-lg border border-teal-100"
                 >
-                  
                   <li>
-                    {/* Dynamic Dashboard Link */}
-                    <Link href={getDashboardPath()}>Dashboard</Link>
+                    <Link href={getDashboardPath()} className="text-gray-700 hover:text-teal-600 hover:bg-teal-50">Dashboard</Link>
                   </li>
                   <li>
-                    <button onClick={logOut}>Logout</button>
+                    <button onClick={logOut} className="text-gray-700 hover:text-teal-600 hover:bg-teal-50">Logout</button>
                   </li>
                 </ul>
               </div>
             ) : (
               showLoginButton && (
-                <Link href="/login" className="btn bg-[#a0e2ff] hidden lg:flex">
+                <Link 
+                  href="/login" 
+                  className="btn bg-gradient-to-r from-teal-500 to-emerald-500 border-none text-white hover:from-teal-600 hover:to-emerald-600 hidden lg:flex gap-2 shadow-md hover:shadow-lg transition-all"
+                >
                   <AiOutlineLogin className="text-xl" /> Join Us
                 </Link>
               )
@@ -110,20 +113,28 @@ const Navbar = () => {
 
         {/* Mobile Dropdown Menu */}
         {hamburger && (
-          <div className="lg:hidden bg-white dark:bg-black shadow-lg">
-            <ul className="menu menu-vertical p-4">
+          <div className="lg:hidden bg-white shadow-lg rounded-b-lg overflow-hidden">
+            <ul className="p-4 space-y-3">
               <li>
-                <Link href="/" onClick={() => setHamburger(false)}>
+                <Link 
+                  href="/" 
+                  className="flex py-2 px-4 text-gray-700 hover:bg-teal-50 hover:text-teal-700 rounded-md transition-colors"
+                  onClick={() => setHamburger(false)}
+                >
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/shop" onClick={() => setHamburger(false)}>
-                  Shop
+              <Link href="/events" className="relative py-2 px-1 text-gray-700 hover:text-teal-600 transition-colors after:absolute after:w-0 after:h-0.5 after:bg-teal-500 after:bottom-0 after:left-0 hover:after:w-full after:transition-all">
+                  Events
                 </Link>
               </li>
               <li>
-                <Link href="/login" onClick={() => setHamburger(false)}>
+                <Link 
+                  href="/login" 
+                  className="flex py-2 px-4 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-md"
+                  onClick={() => setHamburger(false)}
+                >
                   Join Us
                 </Link>
               </li>
