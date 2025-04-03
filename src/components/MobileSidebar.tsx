@@ -42,7 +42,7 @@ const MobileSidebar = () => {
       { label: "Events", href: "/admin/eventManage", icon: <IconCalendarEvent className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" /> },
       { label: "Donations", href: "/admin/donations", icon: <IconFileDollar className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" /> },
       { label: "Settings", href: "#", icon: <IconSettings className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" /> },
-      { label: "Logout", href: "#", icon: <IconArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />, onClick: handleLogOut },
+      { label: "Logout", href: "/login", icon: <IconArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />, onClick: handleLogOut },
     ];
   
     return (

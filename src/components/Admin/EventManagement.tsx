@@ -1,8 +1,7 @@
 "use client"
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Clock, MapPin, Users, Edit, Trash2, Eye, PlusCircle, Search, X } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, Edit, Trash2, Eye, PlusCircle, Search, X, ChevronDown, ChevronUp } from 'lucide-react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
@@ -15,7 +14,7 @@ interface Event {
   attendees: number;
   status: string;
   description: string;
-  image: string; // Changed from imageFile to imageUrl
+  image: string;
 }
 
 const EventManagement = () => {
@@ -25,6 +24,7 @@ const EventManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentEvent, setCurrentEvent] = useState<Event | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
 
   useEffect(() => {
     fetchEvents();
@@ -75,7 +75,7 @@ const EventManagement = () => {
       attendees: 0,
       status: 'Upcoming',
       description: '',
-      image: '' // Initialize with empty string
+      image: ''
     });
     setIsModalOpen(true);
   };
@@ -98,53 +98,27 @@ const EventManagement = () => {
         attendees: currentEvent.attendees,
         status: currentEvent.status,
         description: currentEvent.description,
-        image: currentEvent.image // Include image URL
+        image: currentEvent.image
       };
   
       if (currentEvent._id) {
-        // Update existing event
-        const response = await axios.patch(
+        await axios.patch(
           `https://ecovision-backend-five.vercel.app/events/${currentEvent._id}`,
-          eventData,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
+          eventData
         );
-  
-        setEvents(events.map(event => 
-          event._id === currentEvent._id ? response.data.event : event
-        ));
       } else {
-        // Create new event
-        const response = await axios.post(
+        await axios.post(
           'https://ecovision-backend-five.vercel.app/events', 
-          eventData,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
+          eventData
         );
-        
-        setEvents([...events, response.data.event]);
       }
       
       Swal.fire('Success', 'Event saved successfully', 'success');
       setIsModalOpen(false);
-      setTimeout(() => window.location.reload(), 1000);
+      fetchEvents();
     } catch (error) {
       console.error('Error saving event:', error);
-      
-      let errorMessage = 'Failed to save event';
-      if (axios.isAxiosError(error)) {
-        errorMessage = error.response?.data?.message || error.message;
-      }
-      
-      Swal.fire('Success', 'Changes Saved', 'success');
-      setIsModalOpen(false);
-      setTimeout(() => window.location.reload(), 1000);
+      Swal.fire('Error', 'Failed to save event', 'error');
     }
   };
 
@@ -158,6 +132,19 @@ const EventManagement = () => {
     });
   };
 
+  const toggleEventExpand = (eventId: string) => {
+    setExpandedEvent(expandedEvent === eventId ? null : eventId);
+  };
+
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case 'Upcoming': return 'bg-blue-100 text-blue-800';
+      case 'Completed': return 'bg-green-100 text-green-800';
+      case 'Cancelled': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   const filteredEvents = events
     .filter(event => 
       event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -166,13 +153,13 @@ const EventManagement = () => {
     .filter(event => filterStatus === 'All' || event.status === filterStatus);
   
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       {/* Event Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">
+              <h2 className="text-lg sm:text-xl font-bold">
                 {currentEvent?._id ? 'Edit Event' : 'Create New Event'}
               </h2>
               <button 
@@ -184,7 +171,7 @@ const EventManagement = () => {
             </div>
             
             <form onSubmit={handleSubmit}>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Event Title</label>
                   <input
@@ -192,12 +179,12 @@ const EventManagement = () => {
                     name="title"
                     value={currentEvent?.title || ''}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm sm:text-base"
                     required
                   />
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
                     <input
@@ -205,7 +192,7 @@ const EventManagement = () => {
                       name="date"
                       value={currentEvent?.date || ''}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm sm:text-base"
                       required
                     />
                   </div>
@@ -217,7 +204,7 @@ const EventManagement = () => {
                       name="time"
                       value={currentEvent?.time || ''}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm sm:text-base"
                       required
                     />
                   </div>
@@ -230,7 +217,7 @@ const EventManagement = () => {
                     name="location"
                     value={currentEvent?.location || ''}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm sm:text-base"
                     required
                   />
                 </div>
@@ -242,26 +229,24 @@ const EventManagement = () => {
                     name="attendees"
                     value={currentEvent?.attendees || 0}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm sm:text-base"
                     min="0"
                     required
                   />
                 </div>
 
-                {/* Description (textarea) */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                   <textarea
                     name="description"
                     value={currentEvent?.description || ''}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    rows={4}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm sm:text-base"
+                    rows={3}
                     required
                   />
                 </div>
 
-                {/* Image URL Input */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
                   <input
@@ -269,7 +254,7 @@ const EventManagement = () => {
                     name="image"
                     value={currentEvent?.image || ''}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm sm:text-base"
                     placeholder="https://example.com/image.jpg"
                   />
                   {currentEvent?.image && (
@@ -292,7 +277,7 @@ const EventManagement = () => {
                     name="status"
                     value={currentEvent?.status || 'Upcoming'}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm sm:text-base"
                     required
                   >
                     <option value="Upcoming">Upcoming</option>
@@ -302,17 +287,17 @@ const EventManagement = () => {
                 </div>
               </div>
               
-              <div className="mt-6 flex justify-end space-x-3">
+              <div className="mt-4 sm:mt-6 flex justify-end gap-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                  className="px-3 py-1 sm:px-4 sm:py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+                  className="px-3 py-1 sm:px-4 sm:py-2 text-sm bg-black text-white rounded-md hover:bg-gray-800"
                 >
                   {currentEvent?._id ? 'Update' : 'Create'} Event
                 </button>
@@ -322,35 +307,35 @@ const EventManagement = () => {
         </div>
       )}
       
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-        <h1 className="text-3xl font-bold mb-4 sm:mb-0">Event Management</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+        <h1 className="text-2xl sm:text-3xl font-bold">Event Management</h1>
         <button 
-          className="flex items-center px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
+          className="flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors w-full sm:w-auto justify-center"
           onClick={handleCreateEvent}
         >
-          <PlusCircle className="h-5 w-5 mr-2" />
+          <PlusCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
           Create New Event
         </button>
       </div>
       
       <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Upcoming Events</CardTitle>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-lg sm:text-xl">Upcoming Events</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4 mb-4">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4">
             <div className="relative flex-grow">
-              <Search className="absolute top-3 left-3 text-gray-400 h-5 w-5" />
+              <Search className="absolute top-3 left-3 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
               <input
                 type="text"
                 placeholder="Search events..."
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="pl-9 sm:pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <select 
-              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 sm:px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
             >
@@ -367,68 +352,65 @@ const EventManagement = () => {
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto">
+              {/* Desktop Table */}
+              <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="bg-gray-50">
-                      <th className="px-4 py-2 text-left border-b">Event Name</th>
-                      <th className="px-4 py-2 text-left border-b">Date</th>
-                      <th className="px-4 py-2 text-left border-b">Time</th>
-                      <th className="px-4 py-2 text-left border-b">Location</th>
-                      <th className="px-4 py-2 text-left border-b">Attendees</th>
-                      <th className="px-4 py-2 text-left border-b">Status</th>
-                      <th className="px-4 py-2 text-right border-b">Actions</th>
+                      <th className="px-4 py-3 text-left border-b text-sm font-medium">Event Name</th>
+                      <th className="px-4 py-3 text-left border-b text-sm font-medium">Date</th>
+                      <th className="px-4 py-3 text-left border-b text-sm font-medium">Time</th>
+                      <th className="px-4 py-3 text-left border-b text-sm font-medium">Location</th>
+                      <th className="px-4 py-3 text-left border-b text-sm font-medium">Attendees</th>
+                      <th className="px-4 py-3 text-left border-b text-sm font-medium">Status</th>
+                      <th className="px-4 py-3 text-right border-b text-sm font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredEvents.map((event) => (
                       <tr key={event._id} className="border-b hover:bg-gray-50">
-                        <td className="px-4 py-3 font-medium">{event.title}</td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 text-sm font-medium">{event.title}</td>
+                        <td className="px-4 py-3 text-sm">
                           <div className="flex items-center">
                             <Calendar className="h-4 w-4 mr-1 text-gray-500" />
                             {event.date}
                           </div>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 text-sm">
                           <div className="flex items-center">
                             <Clock className="h-4 w-4 mr-1 text-gray-500" />
                             {event.time}
                           </div>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 text-sm">
                           <div className="flex items-center">
                             <MapPin className="h-4 w-4 mr-1 text-gray-500" />
                             {event.location}
                           </div>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 text-sm">
                           <div className="flex items-center">
                             <Users className="h-4 w-4 mr-1 text-gray-500" />
                             {event.attendees}
                           </div>
                         </td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-1 rounded-full text-xs ${
-                            event.status === 'Upcoming' 
-                              ? 'bg-blue-100 text-blue-800' 
-                              : event.status === 'Completed'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
+                        <td className="px-4 py-3 text-sm">
+                          <span className={`px-2 py-1 rounded-full text-xs ${getStatusBadgeColor(event.status)}`}>
                             {event.status}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-right">
                           <button 
-                            className="p-1 text-blue-600 hover:text-blue-800 mr-1"
+                            className="p-1 text-blue-600 hover:text-blue-800 mr-2"
                             onClick={() => handleEditEvent(event)}
+                            aria-label="Edit event"
                           >
                             <Edit className="h-4 w-4" />
                           </button>
                           <button 
                             className="p-1 text-red-600 hover:text-red-800"
                             onClick={() => event._id && handleDeleteEvent(event._id)}
+                            aria-label="Delete event"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -439,11 +421,75 @@ const EventManagement = () => {
                 </table>
               </div>
               
-              <div className="mt-4 flex justify-between items-center">
-                <p className="text-sm text-gray-500">Showing {filteredEvents.length} of {events.length} events</p>
-                <div className="flex">
-                  <button className="px-3 py-1 border rounded-l-md hover:bg-gray-50">Previous</button>
-                  <button className="px-3 py-1 border-t border-b border-r rounded-r-md bg-blue-50 text-blue-600">Next</button>
+              {/* Mobile List */}
+              <div className="sm:hidden space-y-3">
+                {filteredEvents.map((event) => (
+                  <div key={event._id} className="border rounded-lg p-3">
+                    <div 
+                      className="flex justify-between items-center cursor-pointer"
+                      onClick={() => toggleEventExpand(event._id || '')}
+                    >
+                      <div>
+                        <p className="font-medium">{event.title}</p>
+                        <p className="text-sm text-gray-600 flex items-center">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          {event.date} at {event.time}
+                        </p>
+                      </div>
+                      {expandedEvent === event._id ? (
+                        <ChevronUp className="h-5 w-5" />
+                      ) : (
+                        <ChevronDown className="h-5 w-5" />
+                      )}
+                    </div>
+                    
+                    {expandedEvent === event._id && (
+                      <div className="mt-3 pt-3 border-t space-y-2">
+                        <div className="flex items-center">
+                          <MapPin className="h-4 w-4 mr-2 text-gray-500" />
+                          <span className="text-sm">{event.location}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Users className="h-4 w-4 mr-2 text-gray-500" />
+                          <span className="text-sm">{event.attendees} attendees</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="text-sm font-medium mr-2">Status:</span>
+                          <span className={`px-2 py-1 rounded-full text-xs ${getStatusBadgeColor(event.status)}`}>
+                            {event.status}
+                          </span>
+                        </div>
+                        <div className="pt-2 flex justify-end gap-2">
+                          <button 
+                            onClick={() => handleEditEvent(event)} 
+                            className="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded hover:bg-blue-100 flex items-center"
+                          >
+                            <Edit className="h-3 w-3 mr-1" /> Edit
+                          </button>
+                          <button 
+                            onClick={() => event._id && handleDeleteEvent(event._id)}
+                            className="px-3 py-1 text-sm bg-red-50 text-red-600 rounded hover:bg-red-100 flex items-center"
+                          >
+                            <Trash2 className="h-3 w-3 mr-1" /> Delete
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <p className="text-sm text-gray-500">
+                  Showing {filteredEvents.length} of {events.length} events
+                </p>
+                <div className="flex gap-1">
+                  <button className="px-3 py-1 text-sm border rounded-l-md hover:bg-gray-50">
+                    Previous
+                  </button>
+                  <button className="px-3 py-1 text-sm border-t border-b border-r rounded-r-md bg-blue-50 text-blue-600">
+                    Next
+                  </button>
                 </div>
               </div>
             </>
@@ -451,39 +497,39 @@ const EventManagement = () => {
         </CardContent>
       </Card>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <Card>
-          <CardHeader>
-            <CardTitle>Event Calendar</CardTitle>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-lg sm:text-xl">Event Calendar</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 sm:p-6">
             <div className="bg-gray-100 p-4 rounded-md text-center">
-              <p className="text-gray-500">Calendar view will be implemented here</p>
+              <p className="text-sm sm:text-base text-gray-500">Calendar view will be implemented here</p>
             </div>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader>
-            <CardTitle>Quick Event Stats</CardTitle>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-lg sm:text-xl">Quick Event Stats</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-blue-50 p-4 rounded-md">
-                <p className="text-sm text-blue-500">Upcoming Events</p>
-                <p className="text-2xl font-bold">{events.filter(e => e.status === 'Upcoming').length}</p>
+          <CardContent className="p-4 sm:p-6">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <div className="bg-blue-50 p-3 sm:p-4 rounded-md">
+                <p className="text-xs sm:text-sm text-blue-500">Upcoming Events</p>
+                <p className="text-xl sm:text-2xl font-bold">{events.filter(e => e.status === 'Upcoming').length}</p>
               </div>
-              <div className="bg-green-50 p-4 rounded-md">
-                <p className="text-sm text-green-500">Completed Events</p>
-                <p className="text-2xl font-bold">{events.filter(e => e.status === 'Completed').length}</p>
+              <div className="bg-green-50 p-3 sm:p-4 rounded-md">
+                <p className="text-xs sm:text-sm text-green-500">Completed Events</p>
+                <p className="text-xl sm:text-2xl font-bold">{events.filter(e => e.status === 'Completed').length}</p>
               </div>
-              <div className="bg-amber-50 p-4 rounded-md">
-                <p className="text-sm text-amber-500">Total Attendees</p>
-                <p className="text-2xl font-bold">{events.reduce((sum, e) => sum + e.attendees, 0)}</p>
+              <div className="bg-amber-50 p-3 sm:p-4 rounded-md">
+                <p className="text-xs sm:text-sm text-amber-500">Total Attendees</p>
+                <p className="text-xl sm:text-2xl font-bold">{events.reduce((sum, e) => sum + e.attendees, 0)}</p>
               </div>
-              <div className="bg-purple-50 p-4 rounded-md">
-                <p className="text-sm text-purple-500">Avg. Attendees</p>
-                <p className="text-2xl font-bold">
+              <div className="bg-purple-50 p-3 sm:p-4 rounded-md">
+                <p className="text-xs sm:text-sm text-purple-500">Avg. Attendees</p>
+                <p className="text-xl sm:text-2xl font-bold">
                   {events.length > 0 ? Math.round(events.reduce((sum, e) => sum + e.attendees, 0) / events.length) : 0}
                 </p>
               </div>

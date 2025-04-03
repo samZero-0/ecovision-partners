@@ -2,6 +2,8 @@
 
 [![Vercel Deployment](https://img.shields.io/badge/Deployed%20on-Vercel-blue)](https://ecovision-partners.vercel.app)
 
+**Admin Credentials**: Email: admin@gmail.com, Password: Aa123456!
+
 EcoVision Partners is a mission-driven environmental platform that promotes sustainability, conservation, and climate action. The platform facilitates event management, volunteer coordination, and secure donation processing.
 
 ## 🚀 Tech Stack  
@@ -15,6 +17,7 @@ EcoVision Partners is a mission-driven environmental platform that promotes sust
 - 📅 **Event Management** (Create, Update, Delete, View Events)  
 - 💰 **Donation Processing** (Secure Payment Gateway Integration)  
 - ⚡ **Responsive UI/UX** for a seamless experience  
+
 
 ## 🔗 Live Demo  
 [EcoVision Partners](https://ecovision-partners.vercel.app)  

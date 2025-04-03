@@ -297,7 +297,7 @@ const Donations = () => {
       </Card>
 
       <div className="flex justify-end">
-        <button className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base">
+        <button className="flex items-center space-x-2 bg-black  text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base">
           <Download className="h-4 w-4" />
           <span>Export Data</span>
         </button>
