@@ -132,7 +132,7 @@ const Navbar = () => {
               <li>
                 <Link 
                   href="/login" 
-                  className="flex py-2 px-4 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-md"
+                  className="flex py-2 px-4  text-black rounded-md"
                   onClick={() => setHamburger(false)}
                 >
                   Join Us

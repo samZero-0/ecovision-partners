@@ -119,19 +119,19 @@ const AuthContent = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Login Form Section */}
-      <div className="w-1/2 flex items-center justify-center p-12 bg-white">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 bg-white order-2 lg:order-1">
         <div className="w-full max-w-md">
           <div className="flex items-center mb-8">
             <div className="w-8 h-8 bg-blue-800 rounded-lg mr-3"></div>
             <h1 className="text-2xl font-bold text-gray-800">Ecovision Partners</h1>
           </div>
 
-          <h2 className="text-3xl font-bold mb-2">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2">
             {isLogin ? 'Welcome back' : 'Create an Account'}
           </h2>
-          <p className="text-gray-600 mb-8">
+          <p className="text-gray-600 mb-6 sm:mb-8">
             {isLogin 
               ? 'Please enter your details' 
               : 'Enter your information to get started'}
@@ -177,7 +177,7 @@ const AuthContent = () => {
             )}
 
             {isLogin && (
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <div className="flex items-center">
                   <input 
                     type="checkbox" 
@@ -248,8 +248,7 @@ const AuthContent = () => {
       </div>
 
       {/* Illustration Section */}
-          {/* Illustration Section */}
-          <div className="w-1/2 bg-gradient-to-br from-blue-800 to-blue-900 relative overflow-hidden">
+      <div className="w-full lg:w-1/2 bg-gradient-to-br from-blue-800 to-blue-900 relative overflow-hidden order-1 lg:order-2">
         <div className="absolute inset-0">
           <img 
             src="https://media.istockphoto.com/id/907843354/photo/two-businesswomen-working-on-computer-in-office.jpg?s=612x612&w=0&k=20&c=yvp6O83JSvT5md2u-XYwOzHVHXqM5ez_-CIKH3Hj9GI=" 
@@ -258,29 +257,29 @@ const AuthContent = () => {
           />
         </div>
         
-        <div className="relative z-10 flex flex-col justify-center items-center h-full text-white p-12">
+        <div className="relative z-10 flex flex-col justify-center items-center h-full text-white p-6 sm:p-12">
           <div className="max-w-md text-center">
-            <h2 className="text-4xl font-bold mb-6">Transform Your Workflow</h2>
-            <p className="text-xl mb-8">Join thousands of professionals who trust us to streamline their daily operations.</p>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">Transform Your Workflow</h2>
+            <p className="text-lg sm:text-xl mb-6 sm:mb-8">Join thousands of professionals who trust us to streamline their daily operations.</p>
             
-            <div className="space-y-6">
-              <div className="flex items-center space-x-4 bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+            <div className="space-y-4 sm:space-y-6">
+              <div className="flex items-center space-x-4 bg-white/10 p-3 sm:p-4 rounded-lg backdrop-blur-sm">
                 <div className="flex-shrink-0">
-                  <ChevronRight className="w-6 h-6" />
+                  <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <p className="text-sm">Secure and reliable  </p>
+                <p className="text-sm">Secure and reliable</p>
               </div>
               
-              <div className="flex items-center space-x-4 bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+              <div className="flex items-center space-x-4 bg-white/10 p-3 sm:p-4 rounded-lg backdrop-blur-sm">
                 <div className="flex-shrink-0">
-                  <ChevronRight className="w-6 h-6" />
+                  <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <p className="text-sm">Real-time collaboration tools</p>
               </div>
               
-              <div className="flex items-center space-x-4 bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+              <div className="flex items-center space-x-4 bg-white/10 p-3 sm:p-4 rounded-lg backdrop-blur-sm">
                 <div className="flex-shrink-0">
-                  <ChevronRight className="w-6 h-6" />
+                  <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <p className="text-sm">Advanced analytics and reporting</p>
               </div>
@@ -288,12 +287,10 @@ const AuthContent = () => {
           </div>
         </div>
 
-
         <div className="absolute bottom-0 left-0 w-full h-64 bg-gradient-to-t from-black/20 to-transparent"></div>
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full -ml-48 -mb-48 blur-3xl"></div>
       </div>
-
     </div>
   );
 };
