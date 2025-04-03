@@ -77,7 +77,6 @@ const MyAssignedEvents: React.FC = () => {
       return;
     }
   
-    // Validate hours input
     if (hoursCompleted <= 0) {
       await Swal.fire({
         title: 'Invalid Input',
@@ -91,7 +90,6 @@ const MyAssignedEvents: React.FC = () => {
     setModalLoading(true);
   
     try {
-      // Show loading alert
       Swal.fire({
         title: 'Processing...',
         text: 'Submitting your hours',
@@ -101,19 +99,16 @@ const MyAssignedEvents: React.FC = () => {
         }
       });
   
-      // Make API call
       const response = await axios.patch(
         `https://ecovision-backend-five.vercel.app/signed-up-volunteers/${currentEventId}`,
         { 
           hoursCompleted,
-          progress: 'Completed' // Also mark as completed
+          progress: 'Completed'
         }
       );
   
-      // Close loading alert
       Swal.close();
   
-      // Show success alert
       await Swal.fire({
         title: 'Success!',
         text: `You've successfully logged ${hoursCompleted} hours`,
@@ -122,7 +117,6 @@ const MyAssignedEvents: React.FC = () => {
         timer: 3000,
         timerProgressBar: true,
         willClose: () => {
-          // Refresh data and reset modal
           fetchEvents(user.email);
           setShowModal(false);
           setHoursCompleted(0);
@@ -132,11 +126,7 @@ const MyAssignedEvents: React.FC = () => {
   
     } catch (err) {
       console.error('Error updating hours:', err);
-      
-      // Close any open alerts
       Swal.close();
-      
-  
   
       await Swal.fire({
         title: 'Succeess!',
@@ -144,7 +134,6 @@ const MyAssignedEvents: React.FC = () => {
         icon: 'success',
         confirmButtonText: 'Ok',
         willClose: () => {
-          // Refresh data and reset modal
           fetchEvents(user.email);
           setShowModal(false);
           setHoursCompleted(0);
@@ -156,6 +145,7 @@ const MyAssignedEvents: React.FC = () => {
       setModalLoading(false);
     }
   };
+
   const cancelRegistration = async (eventId: string) => {
     if (!user?.email) return;
     
@@ -164,7 +154,6 @@ const MyAssignedEvents: React.FC = () => {
         await axios.delete(
           `https://ecovision-backend-five.vercel.app/signed-up-volunteers/${eventId}`
         );
-        // Refresh events after deletion
         await fetchEvents(user.email);
       } catch (err) {
         console.error('Error cancelling registration:', err);
@@ -174,119 +163,127 @@ const MyAssignedEvents: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">My Assigned Events</h2>
-        <div className="text-center py-8 text-gray-500">Loading your events...</div>
+      <div className="p-4 sm:p-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">My Assigned Events</h2>
+        <div className="text-center py-6 sm:py-8 text-gray-500">Loading your events...</div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">My Assigned Events</h2>
+    <div className="p-4 sm:p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">My Assigned Events</h2>
       
-      <div className="flex mb-6 space-x-2">
+      <div className="flex flex-wrap mb-4 sm:mb-6 gap-2">
         <button 
           onClick={() => setFilter('all')}
-          className={`px-3 py-1 rounded-md ${filter === 'all' ? 'bg-gray-200 font-medium' : 'bg-gray-100 hover:bg-gray-200'}`}
+          className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm ${
+            filter === 'all' ? 'bg-gray-200 font-medium' : 'bg-gray-100 hover:bg-gray-200'
+          }`}
         >
           All
         </button>
         <button 
           onClick={() => setFilter('upcoming')}
-          className={`px-3 py-1 rounded-md ${filter === 'upcoming' ? 'bg-blue-100 font-medium' : 'bg-gray-100 hover:bg-gray-200'}`}
+          className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm ${
+            filter === 'upcoming' ? 'bg-blue-100 font-medium' : 'bg-gray-100 hover:bg-gray-200'
+          }`}
         >
           Upcoming
         </button>
         <button 
           onClick={() => setFilter('in-progress')}
-          className={`px-3 py-1 rounded-md ${filter === 'in-progress' ? 'bg-yellow-100 font-medium' : 'bg-gray-100 hover:bg-gray-200'}`}
+          className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm ${
+            filter === 'in-progress' ? 'bg-yellow-100 font-medium' : 'bg-gray-100 hover:bg-gray-200'
+          }`}
         >
           In Progress
         </button>
         <button 
           onClick={() => setFilter('completed')}
-          className={`px-3 py-1 rounded-md ${filter === 'completed' ? 'bg-green-100 font-medium' : 'bg-gray-100 hover:bg-gray-200'}`}
+          className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm ${
+            filter === 'completed' ? 'bg-green-100 font-medium' : 'bg-gray-100 hover:bg-gray-200'
+          }`}
         >
           Completed
         </button>
       </div>
       
       {filteredEvents.length > 0 ? (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {filteredEvents.map((event: any) => (
-            <div key={event._id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
-              <div className="flex justify-between items-start">
-                <div className="flex items-center space-x-4">
+            <div key={event._id} className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:bg-gray-50">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0">
+                <div className="flex items-center space-x-2 sm:space-x-4">
                   {event.eventImage && (
                     <img 
                       src={event.eventImage} 
                       alt={event.eventName} 
-                      className="w-16 h-16 object-cover rounded-md"
+                      className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-md"
                     />
                   )}
-                  <h3 className="text-lg font-semibold text-gray-700">{event.eventName}</h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-700">{event.eventName}</h3>
                 </div>
-                <span className={`text-sm font-medium px-2.5 py-0.5 rounded ${getStatusBadgeClass(event.progress)}`}>
+                <span className={`text-xs sm:text-sm font-medium px-2 py-0.5 sm:px-2.5 rounded ${getStatusBadgeClass(event.progress)}`}>
                   {event.progress}
                 </span>
               </div>
               
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="text-sm text-gray-600">
+              <div className="mt-3 sm:mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="text-xs sm:text-sm text-gray-600">
                   <p><span className="font-medium">Date:</span> {new Date(event.date).toLocaleDateString()}</p>
-                  <p><span className="font-medium">Hours Completed:</span> {event.hoursCompleted}</p>
+                  <p><span className="font-medium">Hours:</span> {event.hoursCompleted}</p>
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-xs sm:text-sm text-gray-600">
                   <p><span className="font-medium">Status:</span> {event.status}</p>
-                  <p><span className="font-medium">Signed up on:</span> {new Date(event.createdAt).toLocaleDateString()}</p>
+                  <p><span className="font-medium">Signed up:</span> {new Date(event.createdAt).toLocaleDateString()}</p>
                 </div>
               </div>
               
-              <div className="mt-4 flex justify-end space-x-2">
-        {event.status === 'registered' && (
-          <button
-            onClick={() => cancelRegistration(event._id)}
-            disabled={event.progress === 'Completed'}
-            className={`px-4 py-2 rounded-md text-sm font-medium ${
-              event.progress === 'Completed'
-                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                : 'bg-red-100 text-red-700 hover:bg-red-200'
-            }`}
-          >
-            Cancel Registration
-          </button>
-        )}
-        
-        {event.progress === 'In Progress' && (
-          <button
-            onClick={() => handleMarkCompleted(event._id)}
-            className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700"
-          >
-            Mark Completed
-          </button>
-        )}
-        
-        {event.progress === 'Completed' && (
-          <Link href={`/submit-report/${event._id}`}>
-            <button
-              disabled={event.progress === 'Completed'}
-              className={`px-4 py-2 rounded-md text-sm font-medium ${
-                event.progress === 'Completed'
-                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
-              }`}
-            >
-              Submit Report
-            </button>
-          </Link>
-        )}
-      </div>
+              <div className="mt-3 sm:mt-4 flex flex-wrap justify-end gap-2">
+                {event.status === 'registered' && (
+                  <button
+                    onClick={() => cancelRegistration(event._id)}
+                    disabled={event.progress === 'Completed'}
+                    className={`px-3 sm:px-4 py-1 sm:py-2 rounded-md text-xs sm:text-sm font-medium ${
+                      event.progress === 'Completed'
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-red-100 text-red-700 hover:bg-red-200'
+                    }`}
+                  >
+                    Cancel
+                  </button>
+                )}
+                
+                {event.progress === 'In Progress' && (
+                  <button
+                    onClick={() => handleMarkCompleted(event._id)}
+                    className="px-3 sm:px-4 py-1 sm:py-2 bg-green-600 text-white rounded-md text-xs sm:text-sm font-medium hover:bg-green-700"
+                  >
+                    Complete
+                  </button>
+                )}
+                
+                {event.progress === 'Completed' && (
+                  <Link href={`/submit-report/${event._id}`}>
+                    <button
+                      disabled={event.progress === 'Completed'}
+                      className={`px-3 sm:px-4 py-1 sm:py-2 rounded-md text-xs sm:text-sm font-medium ${
+                        event.progress === 'Completed'
+                          ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
+                    >
+                      Report
+                    </button>
+                  </Link>
+                )}
+              </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-6 sm:py-8 text-gray-500">
           {filter === 'all' 
             ? "You don't have any assigned events yet." 
             : `You don't have any ${filter.replace('-', ' ')} events.`}
@@ -295,10 +292,10 @@ const MyAssignedEvents: React.FC = () => {
 
       {/* Hours Completion Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Mark Event as Completed</h3>
-            <div className="mb-4">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-3 sm:mb-4">Mark Event as Completed</h3>
+            <div className="mb-3 sm:mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Hours Completed
               </label>
@@ -311,20 +308,20 @@ const MyAssignedEvents: React.FC = () => {
                 placeholder="Enter hours completed"
               />
             </div>
-            <div className="flex justify-end space-x-2">
+            <div className="flex justify-end gap-2">
               <button
                 onClick={() => {
                   setShowModal(false);
                   setHoursCompleted(0);
                 }}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md"
+                className="px-3 sm:px-4 py-1 sm:py-2 bg-gray-200 text-gray-800 rounded-md text-sm"
                 disabled={modalLoading}
               >
                 Cancel
               </button>
               <button
                 onClick={submitHoursCompleted}
-                className="px-4 py-2 bg-green-600 text-white rounded-md"
+                className="px-3 sm:px-4 py-1 sm:py-2 bg-green-600 text-white rounded-md text-sm"
                 disabled={modalLoading || hoursCompleted <= 0}
               >
                 {modalLoading ? 'Submitting...' : 'Submit'}

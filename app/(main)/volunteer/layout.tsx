@@ -29,7 +29,7 @@ export default function AdminLayout({
             <SidebarDemoVolunteer></SidebarDemoVolunteer>
             
             {/* Main content area */}
-            <div className="flex-1 p-4">{children}</div>
+            <div className="md:flex-1 md:p-4">{children}</div>
           </div>
         </AuthProvider>
       </body>
