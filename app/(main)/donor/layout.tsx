@@ -6,6 +6,8 @@ import "../../../app/globals.css";
 
 
 import { SidebarDemoDonor } from "@/src/components/DonorSidebar";
+import MobileSidebar from "@/src/components/MobileSidebar";
+import MobileSidebarVolunteer from "@/src/components/MobileSidebarVolunteer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,8 +30,8 @@ export default function AdminLayout({
         <AuthProvider>
           <div className="flex min-h-screen">
             {/* Sidebar */}
-            <SidebarDemoDonor></SidebarDemoDonor>
-            
+            <div className="hidden md:flex"><SidebarDemoDonor></SidebarDemoDonor></div>
+            <div className="md:hidden flex"><MobileSidebarVolunteer></MobileSidebarVolunteer></div>
             {/* Main content area */}
             <div className="flex-1 p-4">{children}</div>
           </div>

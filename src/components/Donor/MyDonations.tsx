@@ -7,7 +7,6 @@ import { Progress } from '@/components/ui/progress';
 import { DollarSign, HeartHandshake, Target, ArrowUp } from 'lucide-react';
 import { AuthContext } from '@/providers/AuthProvider';
 
-
 interface Donation {
   _id: string;
   paymentIntentId: string;
@@ -34,7 +33,6 @@ const MyDonations: React.FC = () => {
         const data = await response.json();
         
         if (data.success) {
-          // Filter donations to only show those from the current user
           const userDonations = data.donations.filter(
             (donation: Donation) => donation.donorEmail === user?.email
           );
@@ -75,12 +73,11 @@ const MyDonations: React.FC = () => {
   };
 
   const getOrganizationName = (id: string) => {
-    // You might want to replace this with actual organization names
     switch(id) {
-      case '1': return 'Global Relief Foundation';
-      case '2': return 'Children Education Fund';
-      case '3': return 'Wildlife Conservation';
-      default: return `Organization ${id}`;
+      case '1': return 'Global Relief';
+      case '2': return 'Education Fund';
+      case '3': return 'Wildlife';
+      default: return `Org ${id}`;
     }
   };
 
@@ -94,17 +91,19 @@ const MyDonations: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div className='flex flex-col gap-3'>
-          <h1 className="text-2xl font-bold">My Donations</h1>
-          <h3>Welcome back, {user?.displayName || user?.email}</h3>
+    <div className="space-y-4 p-4">
+      {/* Header Section */}
+      <div className="flex flex-col gap-2">
+        <div className='flex flex-col gap-1'>
+          <h1 className="text-xl font-bold">My Donations</h1>
+          <h3 className="text-sm text-gray-600">Welcome back, {user?.displayName || user?.email?.split('@')[0]}</h3>
         </div>
         
-        <div className="flex gap-2">
+        {/* Filter Buttons - Now scrollable for small screens */}
+        <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
           <button 
             onClick={() => setActiveFilter('all')}
-            className={`px-3 py-1 rounded-full text-sm font-medium ${
+            className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
               activeFilter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200'
             }`}
           >
@@ -112,7 +111,7 @@ const MyDonations: React.FC = () => {
           </button>
           <button 
             onClick={() => setActiveFilter('completed')}
-            className={`px-3 py-1 rounded-full text-sm font-medium ${
+            className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
               activeFilter === 'completed' ? 'bg-green-600 text-white' : 'bg-gray-200'
             }`}
           >
@@ -120,7 +119,7 @@ const MyDonations: React.FC = () => {
           </button>
           <button 
             onClick={() => setActiveFilter('pending')}
-            className={`px-3 py-1 rounded-full text-sm font-medium ${
+            className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
               activeFilter === 'pending' ? 'bg-yellow-600 text-white' : 'bg-gray-200'
             }`}
           >
@@ -128,7 +127,7 @@ const MyDonations: React.FC = () => {
           </button>
           <button 
             onClick={() => setActiveFilter('failed')}
-            className={`px-3 py-1 rounded-full text-sm font-medium ${
+            className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
               activeFilter === 'failed' ? 'bg-red-600 text-white' : 'bg-gray-200'
             }`}
           >
@@ -138,7 +137,7 @@ const MyDonations: React.FC = () => {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
           {error}
         </div>
       )}
@@ -149,121 +148,128 @@ const MyDonations: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Stats Cards - Stacked on mobile */}
+          <div className="grid grid-cols-1 md:grid-cols-3  gap-4 mb-6">
             {/* Total Donated Card */}
-            <Card className="border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
+            <Card className="border border-gray-100 shadow-sm">
+              <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+                  <CardTitle className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Total Donated
                   </CardTitle>
-                  <div className="p-2 rounded-lg bg-green-50">
-                    <DollarSign className="h-4 w-4 text-green-600" />
+                  <div className="p-1.5 rounded-lg bg-green-50">
+                    <DollarSign className="h-3.5 w-3.5 text-green-600" />
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <div className="flex items-end justify-between">
-                  <p className="text-3xl font-semibold">${totalDonated.toLocaleString()}</p>
-                  <p className="text-sm text-green-600 font-medium flex items-center">
-                    <ArrowUp className="h-3 w-3 mr-1" />
+                  <p className="text-2xl font-semibold">${totalDonated.toLocaleString()}</p>
+                  <p className="text-xs text-green-600 font-medium flex items-center">
+                    <ArrowUp className="h-2.5 w-2.5 mr-0.5" />
                     {donations.length > 0 ? '12.5%' : '0%'}
                   </p>
                 </div>
-                <p className="text-xs text-gray-400 mt-1">All-time contributions</p>
+                <p className="text-xs text-gray-400 mt-0.5">All-time contributions</p>
               </CardContent>
             </Card>
 
             {/* Donations Made Card */}
-            <Card className="border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
+            <Card className="border border-gray-100 shadow-sm">
+              <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+                  <CardTitle className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Donations Made
                   </CardTitle>
-                  <div className="p-2 rounded-lg bg-blue-50">
-                    <HeartHandshake className="h-4 w-4 text-blue-600" />
+                  <div className="p-1.5 rounded-lg bg-blue-50">
+                    <HeartHandshake className="h-3.5 w-3.5 text-blue-600" />
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <div className="flex items-end justify-between">
-                  <p className="text-3xl font-semibold">
+                  <p className="text-2xl font-semibold">
                     {donations.filter(d => d.status === 'completed').length}
                   </p>
-                  <div className="flex -space-x-2">
+                  <div className="flex -space-x-1.5">
                     {[1, 2, 3].map((item) => (
-                      <div key={item} className="h-6 w-6 rounded-full bg-blue-100 border-2 border-white" />
+                      <div key={item} className="h-5 w-5 rounded-full bg-blue-100 border-2 border-white" />
                     ))}
                   </div>
                 </div>
-                <p className="text-xs text-gray-400 mt-1">Successful transactions</p>
+                <p className="text-xs text-gray-400 mt-0.5">Successful transactions</p>
               </CardContent>
             </Card>
 
             {/* Goal Progress Card */}
-            <Card className="border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
+            <Card className="border border-gray-100 shadow-sm">
+              <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+                  <CardTitle className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Yearly Goal
                   </CardTitle>
-                  <div className="p-2 rounded-lg bg-purple-50">
-                    <Target className="h-4 w-4 text-purple-600" />
+                  <div className="p-1.5 rounded-lg bg-purple-50">
+                    <Target className="h-3.5 w-3.5 text-purple-600" />
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
+              <CardContent className="pt-0">
+                <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <p className="text-3xl font-semibold">
+                    <p className="text-2xl font-semibold">
                       {Math.round((totalDonated / 1000) * 100)}%
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs text-gray-500">
                       ${totalDonated.toLocaleString()}/$1,000
                     </p>
                   </div>
                   <Progress 
                     value={(totalDonated / 1000) * 100} 
-                    className="h-2.5 bg-gray-100"
+                    className="h-1.5 bg-gray-100"
                     indicatorColor="bg-purple-600"
                   />
-                  <div className="flex justify-between text-xs text-gray-400">
+                  <div className="flex justify-between text-2xs text-gray-400">
                     <span>Annual target</span>
-                    <span>{Math.round((1000 - totalDonated) / 100)} months remaining</span>
+                    <span>{Math.round((1000 - totalDonated) / 100)} months left</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
           
-          <div className="space-y-4 md:grid md:grid-cols-2 grid-cols-1 gap-4">
+          {/* Donation Cards */}
+          <div className="space-y-3 md:grid md:grid-cols-3 md:gap-4">
             {filteredDonations.length === 0 ? (
-              <p className="text-center text-gray-500 py-8 col-span-2">
+              <p className="text-center text-gray-500 py-8 text-sm">
                 {donations.length === 0 ? 'You have no donations yet.' : 'No donations match the current filter.'}
               </p>
             ) : (
               filteredDonations.map(donation => (
                 <Card key={donation._id} className="overflow-hidden">
-                  <div className="p-6">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-bold text-lg">{getOrganizationName(donation.organizationId)}</h3>
-                        <p className="text-gray-500">{getCauseFromOrganization(donation.organizationId)}</p>
+                  <div className="p-4">
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-base truncate">{getOrganizationName(donation.organizationId)}</h3>
+                        <p className="text-xs text-gray-500 truncate">{getCauseFromOrganization(donation.organizationId)}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-xl">${donation.amount}</p>
-                        <p className="text-gray-500 text-sm">
-                          {new Date(donation.createdAt).toLocaleDateString()}
+                        <p className="font-bold text-lg">${donation.amount}</p>
+                        <p className="text-gray-500 text-xs">
+                          {new Date(donation.createdAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric'
+                          })}
                         </p>
                       </div>
                     </div>
                     
-                    <div className="flex justify-between items-center mt-4">
-                      {getStatusBadge(donation.status)}
+                    <div className="flex justify-between items-center mt-3 gap-2">
+                      <div className="flex-shrink-0">
+                        {getStatusBadge(donation.status)}
+                      </div>
                       
-                      <p className="text-sm text-gray-600 font-medium">
-                        {donation.frequency === 'one-time' ? 'One-time donation' : 'Recurring donation'}
+                      <p className="text-xs text-gray-600 font-medium truncate">
+                        {donation.frequency === 'one-time' ? 'One-time' : 'Recurring'}
                       </p>
                     </div>
                   </div>
