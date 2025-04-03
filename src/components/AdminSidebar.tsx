@@ -40,7 +40,7 @@ export function SidebarDemo() {
       {/* Sticky Sidebar */}
       <div className="sticky top-0 h-screen overflow-y-auto">
         <Sidebar open={open} setOpen={setOpen} animate={true}>
-          <SidebarBody className="flex flex-col justify-between gap-10">
+          <SidebarBody className="flex flex-col justify-between ">
             <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
               <Logo />
               <div className="mt-8 flex flex-col gap-2">

@@ -3,6 +3,7 @@ import Navbar from "@/src/components/NavBar";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../../../app/globals.css";
 import { SidebarDemo } from "@/src/components/AdminSidebar";
+import MobileSidebar from "@/src/components/MobileSidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,10 +24,10 @@ export default function AdminLayout({
     <html lang="en" data-theme="light">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AuthProvider>
-          <div className="flex min-h-screen">
+          <div className="flex min-h-screen ">
             {/* Sidebar */}
-            <SidebarDemo />
-            
+            <div className="md:flex hidden"><SidebarDemo /></div>
+            <div className="flex md:hidden"><MobileSidebar ></MobileSidebar></div>
             {/* Main content area */}
             <div className="flex-1 p-4">{children}</div>
           </div>
