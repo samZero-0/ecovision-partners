@@ -7,7 +7,7 @@ import ProgressReports from './ProgressReport';
 import { AuthContext } from '@/providers/AuthProvider';
 
 const Dashboard: React.FC = () => {
-  const {user} = useContext(AuthContext);
+  const {user, logOut} = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState<'available' | 'assigned' | 'progress'>('available');
 
   return (
@@ -24,7 +24,9 @@ const Dashboard: React.FC = () => {
               src={user?.photoURL}
               alt="User profile"
             />
+              <button onClick={logOut} className='md:hidden flex btn'>Sign out</button>
           </div>
+        
         </div>
       </header>
       

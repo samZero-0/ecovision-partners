@@ -171,7 +171,7 @@ const MyAssignedEvents: React.FC = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 bg-white rounded-lg shadow-md">
+    <div className="p-4 sm:p-6 bg-white rounded-lg shadow-md ">
       <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">My Assigned Events</h2>
       
       <div className="flex flex-wrap mb-4 sm:mb-6 gap-2">

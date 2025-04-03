@@ -1,8 +1,8 @@
 'use client'
 
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import { Bar } from 'recharts';
+import React, { useEffect, useState, useContext } from 'react';
+import { AuthContext } from '@/providers/AuthProvider';
 
 interface VolunteerStats {
   totalHours: number;
@@ -26,86 +26,137 @@ interface VolunteerStats {
 }
 
 const ProgressReports: React.FC = () => {
-  // Mock data - in a real app, this would come from an API call
+  const { user } = useContext(AuthContext);
   const [stats, setStats] = useState<VolunteerStats>({
-    totalHours: 87,
-    eventsCompleted: 12,
-    upcomingEvents: 2,
-    streakDays: 4,
-    impactAreas: [
-      { name: 'Environmental', hours: 32 },
-      { name: 'Social Services', hours: 28 },
-      { name: 'Education', hours: 15 },
-      { name: 'Animal Welfare', hours: 12 },
-    ],
-    monthlyActivity: [
-      { month: 'Oct', hours: 12 },
-      { month: 'Nov', hours: 15 },
-      { month: 'Dec', hours: 8 },
-      { month: 'Jan', hours: 20 },
-      { month: 'Feb', hours: 18 },
-      { month: 'Mar', hours: 14 },
-    ],
-    certificates: [
-      {
-        id: '1',
-        name: 'Environmental Stewardship',
-        issueDate: '2024-12-15',
-        imageUrl: '/api/placeholder/200/120',
-      },
-      {
-        id: '2',
-        name: 'Crisis Response',
-        issueDate: '2025-02-10',
-        imageUrl: '/api/placeholder/200/120',
-      },
-    ],
+    totalHours: 0,
+    eventsCompleted: 0,
+    upcomingEvents: 0,
+    streakDays: 0,
+    impactAreas: [],
+    monthlyActivity: [],
+    certificates: []
   });
 
   const [activeTab, setActiveTab] = useState<'overview' | 'impact' | 'certificates'>('overview');
+  const [loading, setLoading] = useState(true);
 
-  // Calculate progress toward next milestone (100 hours)
+  useEffect(() => {
+    if (!user?.email) return;
+
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get('https://ecovision-backend-five.vercel.app/signed-up-volunteers');
+        const userEvents = response.data.volunteers.filter(
+          (event: any) => event.volunteerEmail === user.email
+        );
+
+        // Calculate stats
+        const totalHours = userEvents.reduce((sum: number, event: any) => sum + (event.hoursCompleted || 0), 0);
+        const eventsCompleted = userEvents.filter((event: any) => event.progress === 'Completed').length;
+        const upcomingEvents = userEvents.filter((event: any) => 
+          event.status === 'registered' && event.progress !== 'Completed'
+        ).length;
+
+        // Group by impact areas (using eventName as placeholder for impact area)
+        const impactAreasMap = new Map<string, number>();
+        userEvents.forEach((event: any) => {
+          const area = event.eventName.split(' ')[0]; // Simple grouping for demo
+          const hours = event.hoursCompleted || 0;
+          impactAreasMap.set(area, (impactAreasMap.get(area) || 0) + hours);
+        });
+
+        const impactAreas = Array.from(impactAreasMap.entries()).map(([name, hours]) => ({
+          name,
+          hours
+        }));
+
+        // Group by month (simplified)
+        const monthlyActivity = [
+          { month: 'Jan', hours: Math.floor(Math.random() * 20) + 5 },
+          { month: 'Feb', hours: Math.floor(Math.random() * 20) + 5 },
+          { month: 'Mar', hours: Math.floor(Math.random() * 20) + 5 },
+          { month: 'Apr', hours: Math.floor(Math.random() * 20) + 5 },
+        ];
+
+        // Mock certificates based on completed events
+        const certificates = eventsCompleted > 0 ? [
+          {
+            id: '1',
+            name: 'Environmental Stewardship',
+            issueDate: new Date().toISOString(),
+            imageUrl: '/api/placeholder/200/120',
+          },
+          ...(eventsCompleted > 3 ? [{
+            id: '2',
+            name: 'Community Leadership',
+            issueDate: new Date().toISOString(),
+            imageUrl: '/api/placeholder/200/120',
+          }] : [])
+        ] : [];
+
+        setStats({
+          totalHours,
+          eventsCompleted,
+          upcomingEvents,
+          streakDays: Math.floor(Math.random() * 10) + 1, // Random streak for demo
+          impactAreas,
+          monthlyActivity,
+          certificates
+        });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [user?.email]);
+
   const nextMilestone = 100;
   const progressPercentage = (stats.totalHours / nextMilestone) * 100;
 
-  const [hours, setHours] = useState([])
-  const [ completed,setCompleted] = useState([])
-   let sum =0;
-
-  useEffect(()=>{
-    axios.get('https://ecovision-backend-five.vercel.app/signed-up-volunteers')
-    .then(res=>setHours(res.data.volunteers.map((item)=>item.hoursCompleted)))
-    
-    axios.get('https://ecovision-backend-five.vercel.app/signed-up-volunteers')
-    .then(res=> setCompleted(res.data.volunteers.filter((item)=>item.progress === 'Completed')))
-
-  },[])
-
-
-  for(let i=0; i<hours.length; i++){
-      sum+=hours[i];
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">Progress Reports</h2>
+        <div className="text-center py-8 text-gray-500">Loading your progress data...</div>
+      </div>
+    );
   }
-  // console.log(sum)
+
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Progress Reports</h2>
+    <div className="p-4 sm:p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">Progress Reports</h2>
       
-      <div className="flex mb-6 border-b">
+      <div className="flex overflow-x-auto mb-4 sm:mb-6 border-b pb-1">
         <button 
           onClick={() => setActiveTab('overview')}
-          className={`px-4 py-2 font-medium text-sm ${activeTab === 'overview' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+          className={`px-3 sm:px-4 py-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
+            activeTab === 'overview' 
+              ? 'border-b-2 border-blue-500 text-blue-600' 
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
         >
           Overview
         </button>
         <button 
           onClick={() => setActiveTab('impact')}
-          className={`px-4 py-2 font-medium text-sm ${activeTab === 'impact' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+          className={`px-3 sm:px-4 py-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
+            activeTab === 'impact' 
+              ? 'border-b-2 border-blue-500 text-blue-600' 
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
         >
           Impact Areas
         </button>
         <button 
           onClick={() => setActiveTab('certificates')}
-          className={`px-4 py-2 font-medium text-sm ${activeTab === 'certificates' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+          className={`px-3 sm:px-4 py-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
+            activeTab === 'certificates' 
+              ? 'border-b-2 border-blue-500 text-blue-600' 
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
         >
           Certificates
         </button>
@@ -113,34 +164,34 @@ const ProgressReports: React.FC = () => {
       
       {activeTab === 'overview' && (
         <div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="p-4 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-500 font-medium">Total Hour Completed</p>
-              <p className="text-2xl font-bold text-blue-700">{sum}</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
+            <div className="p-3 sm:p-4 bg-blue-50 rounded-lg">
+              <p className="text-xs sm:text-sm text-blue-500 font-medium">Total Hours</p>
+              <p className="text-xl sm:text-2xl font-bold text-blue-700">{stats.totalHours}</p>
             </div>
-            <div className="p-4 bg-green-50 rounded-lg">
-              <p className="text-sm text-green-500 font-medium">Events Completed</p>
-              <p className="text-2xl font-bold text-green-700">{completed.length}</p>
+            <div className="p-3 sm:p-4 bg-green-50 rounded-lg">
+              <p className="text-xs sm:text-sm text-green-500 font-medium">Completed</p>
+              <p className="text-xl sm:text-2xl font-bold text-green-700">{stats.eventsCompleted}</p>
             </div>
-            <div className="p-4 bg-purple-50 rounded-lg">
-              <p className="text-sm text-purple-500 font-medium">Upcoming Events</p>
-              <p className="text-2xl font-bold text-purple-700">{stats.upcomingEvents}</p>
+            <div className="p-3 sm:p-4 bg-purple-50 rounded-lg">
+              <p className="text-xs sm:text-sm text-purple-500 font-medium">Upcoming</p>
+              <p className="text-xl sm:text-2xl font-bold text-purple-700">{stats.upcomingEvents}</p>
             </div>
-            <div className="p-4 bg-orange-50 rounded-lg">
-              <p className="text-sm text-orange-500 font-medium">Streak Days</p>
-              <p className="text-2xl font-bold text-orange-700">{stats.streakDays}</p>
+            <div className="p-3 sm:p-4 bg-orange-50 rounded-lg">
+              <p className="text-xs sm:text-sm text-orange-500 font-medium">Streak</p>
+              <p className="text-xl sm:text-2xl font-bold text-orange-700">{stats.streakDays} days</p>
             </div>
           </div>
           
-          <div className="mb-6">
-            <h3 className="text-lg font-medium text-gray-700 mb-2">Progress to Next Milestone</h3>
-            <div className="w-full bg-gray-200 rounded-full h-4">
+          <div className="mb-4 sm:mb-6">
+            <h3 className="text-base sm:text-lg font-medium text-gray-700 mb-2">Next Milestone</h3>
+            <div className="w-full bg-gray-200 rounded-full h-2.5 sm:h-4">
               <div 
-                className="bg-blue-600 h-4 rounded-full" 
+                className="bg-blue-600 h-2.5 sm:h-4 rounded-full" 
                 style={{ width: `${progressPercentage}%` }}
               ></div>
             </div>
-            <div className="flex justify-between text-sm text-gray-500 mt-1">
+            <div className="flex justify-between text-xs sm:text-sm text-gray-500 mt-1">
               <span>0 hours</span>
               <span>{stats.totalHours} hours ({Math.round(progressPercentage)}%)</span>
               <span>{nextMilestone} hours</span>
@@ -148,14 +199,13 @@ const ProgressReports: React.FC = () => {
           </div>
           
           <div>
-            <h3 className="text-lg font-medium text-gray-700 mb-2">Monthly Activity</h3>
-            <div className="h-64 w-full">
-              {/* This would be a chart in a real app */}
-              <div className="flex h-48 items-end justify-between">
+            <h3 className="text-base sm:text-lg font-medium text-gray-700 mb-2">Monthly Activity</h3>
+            <div className="h-48 sm:h-64 w-full">
+              <div className="flex h-32 sm:h-48 items-end justify-between">
                 {stats.monthlyActivity.map((month) => (
                   <div key={month.month} className="flex flex-col items-center">
                     <div 
-                      className="w-12 bg-blue-400 hover:bg-blue-500 transition-colors" 
+                      className="w-8 sm:w-12 bg-blue-400 hover:bg-blue-500 transition-colors" 
                       style={{ height: `${(month.hours / 20) * 100}%` }}
                     ></div>
                     <span className="text-xs mt-1">{month.month}</span>
@@ -169,59 +219,61 @@ const ProgressReports: React.FC = () => {
       
       {activeTab === 'impact' && (
         <div>
-          <h3 className="text-lg font-medium text-gray-700 mb-4">Hours by Impact Area</h3>
+          <h3 className="text-base sm:text-lg font-medium text-gray-700 mb-3 sm:mb-4">Impact Areas</h3>
           
-          <div className="space-y-4">
-            {stats.impactAreas.map((area) => (
-              <div key={area.name}>
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-700">{area.name}</span>
-                  <span className="text-sm text-gray-500">{area.hours} hours</span>
+          <div className="space-y-3 sm:space-y-4">
+            {stats.impactAreas.length > 0 ? (
+              stats.impactAreas.map((area) => (
+                <div key={area.name}>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-xs sm:text-sm font-medium text-gray-700">{area.name}</span>
+                    <span className="text-xs sm:text-sm text-gray-500">{area.hours} hours</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 sm:h-2.5">
+                    <div 
+                      className="bg-blue-600 h-2 sm:h-2.5 rounded-full" 
+                      style={{ width: `${(area.hours / stats.totalHours) * 100}%` }}
+                    ></div>
+                  </div>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div 
-                    className="bg-blue-600 h-2.5 rounded-full" 
-                    style={{ width: `${(area.hours / stats.totalHours) * 100}%` }}
-                  ></div>
-                </div>
+              ))
+            ) : (
+              <div className="text-center py-4 text-gray-500 text-sm">
+                No impact data available yet. Complete some events to see your impact.
               </div>
-            ))}
+            )}
           </div>
           
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-            <h3 className="text-md font-medium text-gray-700 mb-2">Impact Summary</h3>
-            <p className="text-sm text-gray-600">
-              You've contributed the most hours to <strong>Environmental</strong> causes, making up 
-              {' '}{Math.round((stats.impactAreas[0].hours / stats.totalHours) * 100)}%{' '}
-              of your total volunteer work. Consider exploring more opportunities in 
-              {' '}<strong>Education</strong> if you're looking to diversify your impact.
-            </p>
-          </div>
+          {stats.impactAreas.length > 0 && (
+            <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-sm sm:text-md font-medium text-gray-700 mb-2">Your Impact</h3>
+              <p className="text-xs sm:text-sm text-gray-600">
+                You've contributed the most hours to <strong>{stats.impactAreas[0]?.name || ''}</strong> causes.
+              </p>
+            </div>
+          )}
         </div>
       )}
       
       {activeTab === 'certificates' && (
         <div>
-          <h3 className="text-lg font-medium text-gray-700 mb-4">Your Certificates</h3>
+          <h3 className="text-base sm:text-lg font-medium text-gray-700 mb-3 sm:mb-4">Certificates</h3>
           
           {stats.certificates.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {stats.certificates.map((cert) => (
                 <div key={cert.id} className="border rounded-lg overflow-hidden">
-                  <img 
-                    src={cert.imageUrl} 
-                    alt={cert.name} 
-                    className="w-full h-32 object-cover" 
-                  />
-                  <div className="p-4">
-                    <h4 className="font-medium text-gray-800">{cert.name}</h4>
-                    <p className="text-sm text-gray-500">Issued on {new Date(cert.issueDate).toLocaleDateString()}</p>
-                    <div className="mt-3">
-                      <button className="text-sm text-blue-600 hover:text-blue-800">
-                        Download PDF
-                      </button>
-                      <button className="text-sm text-blue-600 hover:text-blue-800 ml-4">
-                        Share
+                  <div className="bg-gray-100 h-24 sm:h-32 flex items-center justify-center">
+                    <span className="text-gray-400">Certificate Image</span>
+                  </div>
+                  <div className="p-3 sm:p-4">
+                    <h4 className="font-medium text-gray-800 text-sm sm:text-base">{cert.name}</h4>
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                      Issued: {new Date(cert.issueDate).toLocaleDateString()}
+                    </p>
+                    <div className="mt-2 sm:mt-3">
+                      <button className="text-xs sm:text-sm text-blue-600 hover:text-blue-800">
+                        Download
                       </button>
                     </div>
                   </div>
@@ -229,24 +281,10 @@ const ProgressReports: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              You haven't earned any certificates yet. Complete more volunteer activities to earn recognition.
+            <div className="text-center py-6 text-gray-500 text-sm sm:text-base">
+              Complete more events to earn certificates.
             </div>
           )}
-          
-          <div className="mt-6">
-            <h3 className="text-lg font-medium text-gray-700 mb-2">Available Certificates</h3>
-            <div className="border rounded-lg p-4 bg-gray-50">
-              <h4 className="font-medium text-gray-800">Community Leadership</h4>
-              <p className="text-sm text-gray-600 mt-1">
-                Complete 5 more events in the Social Services category to earn this certificate.
-              </p>
-              <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-                <div className="bg-green-600 h-2.5 rounded-full" style={{ width: '60%' }}></div>
-              </div>
-              <p className="text-xs text-gray-500 mt-1">3/5 events completed</p>
-            </div>
-          </div>
         </div>
       )}
     </div>

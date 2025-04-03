@@ -24,9 +24,11 @@ export default function AdminLayout({
     <html lang="en" data-theme="light">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AuthProvider>
-          <div className="flex min-h-screen">
+          <div className="md:flex md:min-h-screen">
             {/* Sidebar */}
-            <SidebarDemoVolunteer></SidebarDemoVolunteer>
+        <div className="md:flex hidden">
+        <SidebarDemoVolunteer></SidebarDemoVolunteer>
+        </div>
             
             {/* Main content area */}
             <div className="md:flex-1 md:p-4">{children}</div>
