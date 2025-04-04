@@ -223,7 +223,7 @@ const EventManagement = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Attendees</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Slots</label>
                   <input
                     type="number"
                     name="attendees"
@@ -361,7 +361,7 @@ const EventManagement = () => {
                       <th className="px-4 py-3 text-left border-b text-sm font-medium">Date</th>
                       <th className="px-4 py-3 text-left border-b text-sm font-medium">Time</th>
                       <th className="px-4 py-3 text-left border-b text-sm font-medium">Location</th>
-                      <th className="px-4 py-3 text-left border-b text-sm font-medium">Attendees</th>
+                      <th className="px-4 py-3 text-left border-b text-sm font-medium">Slots</th>
                       <th className="px-4 py-3 text-left border-b text-sm font-medium">Status</th>
                       <th className="px-4 py-3 text-right border-b text-sm font-medium">Actions</th>
                     </tr>
@@ -524,7 +524,7 @@ const EventManagement = () => {
                 <p className="text-xl sm:text-2xl font-bold">{events.filter(e => e.status === 'Completed').length}</p>
               </div>
               <div className="bg-amber-50 p-3 sm:p-4 rounded-md">
-                <p className="text-xs sm:text-sm text-amber-500">Total Attendees</p>
+                <p className="text-xs sm:text-sm text-amber-500">Total Slots</p>
                 <p className="text-xl sm:text-2xl font-bold">{events.reduce((sum, e) => sum + e.attendees, 0)}</p>
               </div>
               <div className="bg-purple-50 p-3 sm:p-4 rounded-md">
