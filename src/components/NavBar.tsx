@@ -48,7 +48,7 @@ const Navbar = () => {
             >
               {hamburger ? <AiOutlineClose size={24} className="text-teal-700" /> : <AiOutlineMenu size={24} className="text-teal-700" />}
             </button>
-            <Link href="/" className=" text-xl hidden lg:flex items-center gap-2">
+            <Link href="/" className=" text-xl  lg:flex items-center gap-2">
               <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-emerald-500">
                 Ecovision
               </span>
