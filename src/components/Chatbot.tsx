@@ -34,7 +34,7 @@ const Chatbot: React.FC = () => {
     setIsLoading(true);
   
     try {
-      const response = await axios.post('http://localhost:5000/ai-chat', {
+      const response = await axios.post('https://ecovision-backend-five.vercel.app/ai-chat', {
         message: input,
         context: "Ecovision is an environmental organization offering volunteer programs, donations, and sustainability initiatives."
       });
