@@ -4,6 +4,7 @@ import MissionBanner from "@/src/components/Banner";
 import Chatbot from "@/src/components/Chatbot";
 import ContactPage from "@/src/components/Contact";
 import { DirectionAwareHoverDemo } from "@/src/components/DirectionalHover";
+import { DotBackgroundDemo } from "@/src/components/DotBg";
 import { GridSmallBackgroundDemo } from "@/src/components/LineBg";
 import PricingPackages from "@/src/components/Pricing";
 import WhatWeOffer from "@/src/components/WhatWeOffer";
@@ -18,7 +19,8 @@ export default function Home() {
       {/* <AboutUsSection></AboutUsSection> */}
       <WhatWeOffer></WhatWeOffer>
       <PricingPackages></PricingPackages>
-      <ContactPage></ContactPage>
+      {/* <ContactPage></ContactPage> */}
+      <DotBackgroundDemo></DotBackgroundDemo>
       <Chatbot></Chatbot>
     </div>
   );
