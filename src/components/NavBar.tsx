@@ -37,7 +37,7 @@ const Navbar = () => {
   console.log(isAdmin, isDonor, isVolunteer);
   
   return (
-    <section className="sticky top-0 z-50 shadow-md bg-gradient-to-r from-emerald-50/80 to-teal-50/80 ">
+    <section className="fixed top-0 left-0 right-0 z-150 shadow-md bg-white  ">
       <section className="md:w-11/12 md:mx-auto">
         <div className="navbar py-3">
           {/* Navbar Start */}
