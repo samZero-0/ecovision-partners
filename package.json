@@ -22,7 +22,7 @@
     "clsx": "^2.1.1",
     "daisyui": "^5.0.9",
     "firebase": "^11.5.0",
-    "framer-motion": "^12.6.2",
+    "framer-motion": "^12.6.3",
     "lucide-react": "^0.484.0",
     "motion": "^12.6.3",
     "next": "15.2.4",

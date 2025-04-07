@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Globe, Users, Award, ArrowRight } from 'lucide-react';
+import { DirectionAwareHover } from '@/components/ui/direction-aware-hover';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -39,22 +40,14 @@ const AboutUsSection = () => {
               transition={{ type: "tween" }}
               className="bg-white rounded-2xl overflow-hidden shadow-lg transform hover:shadow-2xl transition-all duration-300"
             >
-              <img 
-                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1471&q=80" 
-                alt="Team Collaboration" 
-                className="w-full h-64 object-cover"
-              />
+              <DirectionAwareHover imageUrl='https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1471&q=80'></DirectionAwareHover>
             </motion.div>
             <motion.div 
               whileHover={{ scale: 1.02 }}
               transition={{ type: "tween" }}
               className="bg-white rounded-2xl overflow-hidden shadow-lg transform hover:shadow-2xl transition-all duration-300 mt-8"
             >
-              <img 
-                src="https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1469&q=80" 
-                alt="Office Environment" 
-                className="w-full h-64 object-cover"
-              />
+              <DirectionAwareHover imageUrl='https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1469&q=80' ></DirectionAwareHover>
             </motion.div>
           </motion.div>
 
