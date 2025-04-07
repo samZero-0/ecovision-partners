@@ -14,7 +14,7 @@ export default function Home() {
     <div>
       <MissionBanner></MissionBanner>
       <GridSmallBackgroundDemo></GridSmallBackgroundDemo>
-      <DirectionAwareHoverDemo></DirectionAwareHoverDemo>
+      {/* <DirectionAwareHoverDemo></DirectionAwareHoverDemo> */}
       {/* <AboutUsSection></AboutUsSection> */}
       <WhatWeOffer></WhatWeOffer>
       <PricingPackages></PricingPackages>

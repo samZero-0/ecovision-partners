@@ -86,8 +86,8 @@ const MissionBanner = () => {
             >
               <div className="absolute inset-0 bg-black/50 "></div>
             </div>
-            <div className="relative z-10 text-white px-4">
-              <h1 className="text-5xl md:text-7xl font-bold mb-8 drop-shadow-lg animate-slide-up mt-7 md:mt-0">
+            <div className="relative z-10 text-white px-4 mt-12">
+              <h1 className="text-5xl md:text-7xl  font-bold mb-8 drop-shadow-lg animate-slide-up hidden md:block">
                 Conservation Matters
               </h1>
               <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-8">
