@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Sparkles
 } from 'lucide-react';
+import Link from 'next/link';
 
 const WhatWeOffer = () => {
   const services = [
@@ -185,10 +186,12 @@ const WhatWeOffer = () => {
           <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
             Let's work together to bring your vision to life. Our team of expert event planners is here to help you every step of the way.
           </p>
-          <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-teal-700 transition-colors flex items-center gap-2 mx-auto">
+        <Link href='/login'>
+        <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-teal-700 transition-colors flex items-center gap-2 mx-auto">
             Schedule a Consultation
             <ChevronRight className="w-5 h-5" />
           </button>
+        </Link>
         </motion.div>
       </div>
     </section>
