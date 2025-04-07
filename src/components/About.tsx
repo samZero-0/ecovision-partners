@@ -21,7 +21,7 @@ const staggerContainer = {
 
 const AboutUsSection = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+    <div className="min-h-screen  z-50 bg-transparent">
       <div className="container mx-auto px-4 py-20">
         <motion.div 
           initial="hidden"
