@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, Download, ChevronDown, DollarSign, TrendingUp, Users, Calendar } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { AuthContext } from '@/providers/AuthProvider';
+import { jsPDF } from 'jspdf';
+
 
 const Donations = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -57,6 +59,103 @@ const Donations = () => {
 
     fetchDonations();
   }, []);
+
+  // Function to export data as PDF
+  // Function to export data as PDF without autotable
+const exportToPDF = () => {
+  const doc = new jsPDF();
+  
+  // Add title
+  doc.setFontSize(18);
+  doc.text('Donation Report', 14, 22);
+  
+  // Add date
+  doc.setFontSize(10);
+  doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+  
+  // Add summary statistics
+  doc.setFontSize(12);
+  doc.text('Summary Statistics', 14, 40);
+  
+  const totalDonations = donationData.reduce((sum, donation) => sum + donation.amount, 0);
+  const avgDonation = donationData.length > 0 ? totalDonations / donationData.length : 0;
+  const totalDonors = new Set(donationData.map(d => d.email)).size;
+  
+  doc.text(`- Total Donations: $${totalDonations.toLocaleString()}`, 20, 48);
+  doc.text(`- Average Donation: $${avgDonation.toFixed(2)}`, 20, 56);
+  doc.text(`- Total Donors: ${totalDonors}`, 20, 64);
+  
+  // Manual table implementation
+  doc.setFontSize(12);
+  doc.text('Donation Details', 14, 76);
+  
+  // Set up table coordinates and dimensions
+  const startY = 80;
+  const rowHeight = 10;
+  const colWidths = [30, 40, 20, 25, 30, 25, -1]; // last column takes remaining space
+  
+  // Table headers
+  doc.setFillColor(41, 128, 185);
+  doc.setTextColor(255);
+  // doc.setFontStyle('bold');
+  doc.rect(14, startY, 182, rowHeight, 'F');
+  
+  let currentX = 14;
+  const headers = ['Donor', 'Email', 'Amount', 'Date', 'Campaign', 'Status', 'Frequency'];
+  headers.forEach((header, i) => {
+    doc.text(header, currentX + 2, startY + 7);
+    currentX += colWidths[i];
+  });
+  
+  // Table rows
+  doc.setTextColor(0);
+  // doc.setFontStyle('normal');
+  
+  let currentY = startY + rowHeight;
+  
+  // Limit to first 20 donations to avoid oversized PDF
+  const donationsToShow = filteredDonations.slice(0, 20);
+  
+  donationsToShow.forEach((donation, rowIndex) => {
+    // Alternate row colors
+    if (rowIndex % 2 === 0) {
+      doc.setFillColor(245, 245, 245);
+      doc.rect(14, currentY, 182, rowHeight, 'F');
+    }
+    
+    const rowData = [
+      donation.donor,
+      donation.email,
+      `$${donation.amount.toLocaleString()}`,
+      donation.date,
+      donation.campaign,
+      donation.status,
+      donation.frequency
+    ];
+    
+    currentX = 14;
+    rowData.forEach((cell, i) => {
+      // Truncate text if too long
+      let text = cell;
+      if (text.length > 15) {
+        text = text.substring(0, 13) + '...';
+      }
+      doc.text(text, currentX + 2, currentY + 7);
+      currentX += colWidths[i];
+    });
+    
+    currentY += rowHeight;
+  });
+  
+  // Add note about limited data if necessary
+  if (filteredDonations.length > 20) {
+    doc.setFontSize(10);
+    doc.text(`Note: Showing only 20 out of ${filteredDonations.length} donations.`, 14, currentY + 10);
+  }
+  
+  // Save the PDF
+  doc.save('donation_report.pdf');
+};
 
   // Filter donations based on search term
   const filteredDonations = donationData.filter(donation => 
@@ -297,7 +396,10 @@ const Donations = () => {
       </Card>
 
       <div className="flex justify-end">
-        <button className="flex items-center space-x-2 bg-black  text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base">
+        <button 
+          className="flex items-center space-x-2 bg-black text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base hover:bg-gray-800 transition-colors"
+          onClick={exportToPDF}
+        >
           <Download className="h-4 w-4" />
           <span>Export Data</span>
         </button>
