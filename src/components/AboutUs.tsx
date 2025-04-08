@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const AboutUs: React.FC = () => {
   return (
@@ -46,9 +47,11 @@ const AboutUs: React.FC = () => {
               we can address the most pressing environmental challenges facing our world today.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="bg-teal-600 hover:bg-green-700 text-white py-2 px-6 rounded-md transition duration-300">
+              <Link href='/login'>
+              <button className="bg-teal-600 cursor-pointer hover:bg-green-700 text-white py-2 px-6 rounded-md transition duration-300">
                 Join Our Mission
               </button>
+              </Link>
               <button className="border border-teal-600 text-green-600 hover:bg-green-50 py-2 px-6 rounded-md transition duration-300">
                 Learn More
               </button>
@@ -170,12 +173,16 @@ const AboutUs: React.FC = () => {
               support our environmental initiatives and make a positive impact on our planet.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-white hover:bg-green-50 text-green-700 font-semibold py-3 px-6 rounded-md transition duration-300">
+              <Link href='/login'>
+              <button className="bg-white cursor-pointer hover:bg-green-50 text-green-700 font-semibold py-3 px-6 rounded-md transition duration-300">
                 Become a Volunteer
               </button>
-              <button className="bg-green-600 hover:bg-green-800 text-white font-semibold py-3 px-6 rounded-md transition duration-300">
+              </Link>
+            <Link href='/login'>
+            <button className="bg-green-600 cursor-pointer hover:bg-green-800 text-white font-semibold py-3 px-6 rounded-md transition duration-300">
                 Donate Now
               </button>
+            </Link>
             </div>
           </div>
         </div>
