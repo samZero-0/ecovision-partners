@@ -181,12 +181,12 @@ const PricingPackages = () => {
           {/* Navigation Arrows */}
           <div className="absolute inset-y-0 left-0 flex items-center z-10">
             <button className="p-2 rounded-full bg-gray-800/50 backdrop-blur-md text-white hover:bg-gray-700 transition-colors shadow-lg -ml-4">
-              <ChevronLeft className="w-6 h-6" />
+              {/* <ChevronLeft className="w-6 h-6" /> */}
             </button>
           </div>
           <div className="absolute inset-y-0 right-0 flex items-center z-10">
             <button className="p-2 rounded-full bg-gray-800/50 backdrop-blur-md text-white hover:bg-gray-700 transition-colors shadow-lg -mr-4">
-              <ChevronRight className="w-6 h-6" />
+              {/* <ChevronRight className="w-6 h-6" /> */}
             </button>
           </div>
 
