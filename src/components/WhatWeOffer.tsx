@@ -147,7 +147,7 @@ const WhatWeOffer = () => {
         </div>
 
         {/* Stats Section */}
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-3xl p-12">
+        <div className="bg-gradient-to-r from-teal-600 to-green-600 rounded-3xl p-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
               <motion.div
