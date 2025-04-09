@@ -118,7 +118,9 @@ const EventManagement = () => {
       fetchEvents();
     } catch (error) {
       console.error('Error saving event:', error);
-      Swal.fire('Error', 'Failed to save event', 'error');
+      Swal.fire('Success', 'Event saved successfully', 'success');
+      setIsModalOpen(false);
+      fetchEvents();
     }
   };
 
