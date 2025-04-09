@@ -43,7 +43,7 @@ const Footer = () => {
                   <p className="font-medium">
                       Ecovision Partners
                       <br />
-                      <span className="text-sm">Creating sustainable futures since 2015</span>
+                      <span className="text-sm">Creating sustainable futures since 2025</span>
                   </p>
               </aside>
               <nav className="md:place-self-center md:justify-self-end">

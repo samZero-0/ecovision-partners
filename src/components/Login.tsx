@@ -104,6 +104,7 @@ const AuthContent = () => {
         setTimeout(() => {
           const returnUrl = searchParams.get('returnUrl') || '/';
           router.push(returnUrl);
+          
         }, 800);
       })
       .catch((err) => {
@@ -116,6 +117,12 @@ const AuthContent = () => {
         });
       })
       .finally(() => setIsLoading(false));
+  };
+
+  // Function to auto-fill admin credentials
+  const handleAdminCredentials = () => {
+    setEmail('admin@gmail.com');
+    setPassword('Aa123456!');
   };
 
   return (
@@ -217,6 +224,19 @@ const AuthContent = () => {
                 {isLogin ? 'Sign in with Google' : 'Sign up with Google'}
               </button>
             </div>
+
+            {/* Admin Credentials Button */}
+            {isLogin && (
+              <div className="text-center mt-4">
+                <button 
+                  type="button"
+                  onClick={handleAdminCredentials}
+                  className="w-full flex items-center justify-center bg-gray-200 rounded-lg py-3 hover:bg-gray-300 transition duration-300"
+                >
+                  <span className="text-gray-700">Use Admin Credentials</span>
+                </button>
+              </div>
+            )}
 
             <div className="text-center mt-4">
               {isLogin ? (
